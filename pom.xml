@@ -8,11 +8,6 @@
     <artifactId>cfc-racing</artifactId>
     <version>1.0</version>
 
-    <properties>
-        <!-- steam游戏安装路径，不是steam本体的安装路径 -->
-        <steam.path>E:/Steam/steamapps</steam.path>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>com.megacrit.cardcrawl</groupId>
@@ -65,7 +60,7 @@
                         <phase>package</phase>
                         <configuration>
                             <target>
-                                <copy file="target\cfc-racing.jar" tofile="E:\Steam\steamapps\common\SlayTheSpire\mods\cfc-racing.jar"/>
+                                <copy file="target\cfc-racing.jar" tofile="${steam.path}\common\SlayTheSpire\mods\cfc-racing.jar"/>
                             </target>
                         </configuration>
                         <goals>

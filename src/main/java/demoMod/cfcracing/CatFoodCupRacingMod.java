@@ -2,29 +2,31 @@ package demoMod.cfcracing;
 
 import basemod.BaseMod;
 import basemod.ModPanel;
-import basemod.interfaces.PostDungeonInitializeSubscriber;
-import basemod.interfaces.PostInitializeSubscriber;
-import basemod.interfaces.StartActSubscriber;
-import basemod.interfaces.StartGameSubscriber;
+import basemod.interfaces.*;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.evacipated.cardcrawl.modthespire.lib.SpireConfig;
 import com.evacipated.cardcrawl.modthespire.lib.SpireInitializer;
 import com.megacrit.cardcrawl.cards.AbstractCard;
+import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.helpers.CardLibrary;
 import com.megacrit.cardcrawl.helpers.ImageMaster;
+import com.megacrit.cardcrawl.localization.UIStrings;
 import demoMod.cfcracing.entity.CardSetting;
 import demoMod.cfcracing.ui.CardFilterModMenu;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 @SpireInitializer
 public class CatFoodCupRacingMod implements StartGameSubscriber,
                                             PostInitializeSubscriber,
                                             PostDungeonInitializeSubscriber,
-                                            StartActSubscriber {
+                                            StartActSubscriber,
+                                            EditStringsSubscriber {
     public static SpireConfig saves;
     public static HashMap<String, CardSetting> configSettings = new HashMap<>();
 
@@ -158,5 +160,12 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
     @Override
     public void receiveStartAct() {
         purgeCardPool();
+    }
+
+    @Override
+    public void receiveEditStrings() {
+        String language = Settings.language.name().toLowerCase(Locale.ROOT);
+        String uiStrings = Gdx.files.internal("localizations/" + language + "/CFCRacing-UIStrings.json").readString("UTF-8");
+        BaseMod.loadCustomStrings(UIStrings.class, uiStrings);
     }
 }

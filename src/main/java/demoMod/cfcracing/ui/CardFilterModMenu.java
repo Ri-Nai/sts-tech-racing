@@ -13,9 +13,7 @@ import com.megacrit.cardcrawl.cards.CardGroup;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.core.GameCursor;
 import com.megacrit.cardcrawl.core.Settings;
-import com.megacrit.cardcrawl.helpers.CardLibrary;
-import com.megacrit.cardcrawl.helpers.ImageMaster;
-import com.megacrit.cardcrawl.helpers.MathHelper;
+import com.megacrit.cardcrawl.helpers.*;
 import com.megacrit.cardcrawl.helpers.controller.CInputActionSet;
 import com.megacrit.cardcrawl.helpers.input.InputHelper;
 import com.megacrit.cardcrawl.localization.UIStrings;
@@ -24,6 +22,7 @@ import com.megacrit.cardcrawl.screens.compendium.CardLibSortHeader;
 import com.megacrit.cardcrawl.screens.mainMenu.*;
 import com.megacrit.cardcrawl.unlock.UnlockTracker;
 import demoMod.cfcracing.CatFoodCupRacingMod;
+import demoMod.cfcracing.entity.CardSetting;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -35,7 +34,9 @@ import java.util.Map;
 public class CardFilterModMenu implements TabBarListener, ScrollBarListener, IUIElement {
     private static final Logger logger = LogManager.getLogger(CardFilterModMenu.class.getName());
     private static final UIStrings uiStrings = CardCrawlGame.languagePack.getUIString("CardLibraryScreen");
-    public static final String[] TEXT = uiStrings.TEXT; private static float drawStartX;
+    private static final UIStrings resetTipStrings = CardCrawlGame.languagePack.getUIString("CardFilterModMenu");
+    public static final String[] TEXT = uiStrings.TEXT;
+    private static float drawStartX;
     private static final float drawStartY = Settings.HEIGHT * 0.66F;
     private static float padX;
     private static float padY;
@@ -61,6 +62,9 @@ public class CardFilterModMenu implements TabBarListener, ScrollBarListener, IUI
     private final ScrollBar scrollBar;
     private CardLibSelectionType type;
     private Texture filterSelectionImg;
+    private Texture resetButton;
+    private Hitbox resetButtonHb;
+    private Color resetButtonColor;
     private int selectionIndex;
     private AbstractCard controllerCard;
     private final ModPanel parent;
@@ -97,6 +101,9 @@ public class CardFilterModMenu implements TabBarListener, ScrollBarListener, IUI
         this.sortHeader = new CardLibSortHeader(null);
         this.scrollBar = new ScrollBar(this);
         this.overlay_deprecated = new Texture("cfcImages/ui/cardLibrary/disabledCardX.png");
+        this.resetButton = new Texture("cfcImages/ui/cardLibrary/resetButton.png");
+        this.resetButtonHb = new Hitbox(100.0F * Settings.scale, 880.0F * Settings.scale, 200.0F * Settings.scale, 200.0F * Settings.scale);
+        this.resetButtonColor = new Color(0.5F, 0.5F, 0.5F, 1.0F);
     }
 
     public void initialize() {
@@ -228,6 +235,21 @@ public class CardFilterModMenu implements TabBarListener, ScrollBarListener, IUI
         }
         if (Settings.isControllerMode && this.controllerCard != null) {
             Gdx.input.setCursorPosition((int)this.controllerCard.hb.cX, (int)(Settings.HEIGHT - this.controllerCard.hb.cY));
+        }
+        this.resetButtonHb.update();
+        if (this.resetButtonHb.hovered) {
+            if (this.resetButtonHb.justHovered) {
+                CardCrawlGame.sound.playA("UI_HOVER", -0.4F);
+            }
+            this.resetButtonColor.r = this.resetButtonColor.g = this.resetButtonColor.b = 1.0F;
+            if (InputHelper.justClickedLeft) {
+                for (Map.Entry<String, CardSetting> e : CatFoodCupRacingMod.configSettings.entrySet()) {
+                    e.getValue().isDisabled = false;
+                }
+                CatFoodCupRacingMod.saveSettingsData();
+            }
+        } else {
+            this.resetButtonColor.r = this.resetButtonColor.g = this.resetButtonColor.b = 0.5F;
         }
     }
 
@@ -442,6 +464,12 @@ public class CardFilterModMenu implements TabBarListener, ScrollBarListener, IUI
                 sb.draw(this.overlay_deprecated, c.current_x - 256.0F, c.current_y - 250.0F, 256.0F, 256.0F, 512.0F, 512.0F, c.drawScale * Settings.scale, c.drawScale * Settings.scale, c.angle, 0, 0, 1024, 1024, false, false);
             }
         }
+        sb.setColor(this.resetButtonColor);
+        sb.draw(this.resetButton, this.resetButtonHb.x, this.resetButtonHb.y, this.resetButtonHb.width, this.resetButtonHb.height);
+        if (this.resetButtonHb.hovered) {
+            TipHelper.renderGenericTip(InputHelper.mX + 70.0F * Settings.scale, InputHelper.mY, resetTipStrings.TEXT[0], resetTipStrings.TEXT[1]);
+        }
+        this.resetButtonHb.render(sb);
     }
 
     private void renderControllerUi(SpriteBatch sb) {
