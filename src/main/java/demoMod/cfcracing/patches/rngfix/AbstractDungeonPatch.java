@@ -26,6 +26,9 @@ import com.megacrit.cardcrawl.events.shrines.*;
 import com.megacrit.cardcrawl.helpers.EventHelper;
 import com.megacrit.cardcrawl.random.Random;
 import com.megacrit.cardcrawl.saveAndContinue.SaveFile;
+import com.megacrit.cardcrawl.vfx.AbstractGameEffect;
+import com.megacrit.cardcrawl.vfx.InfiniteSpeechBubble;
+import com.megacrit.cardcrawl.vfx.cardManip.ShowCardAndObtainEffect;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -50,6 +53,18 @@ public class AbstractDungeonPatch {
         private static Random aiRng;
         private static Random shuffleRng;
         private static Random cardRandomRng;
+        private static List<AbstractGameEffect> tmpEffectList;
+
+        /**
+         * 防止在下层时清除掉特效动画来卡掉即将塞到牌组里的诅咒
+         */
+        public static void Prefix(AbstractDungeon dungeon, SaveFile saveFile) {
+            tmpEffectList = AbstractDungeon.effectList.stream().filter(effect -> effect instanceof ShowCardAndObtainEffect).collect(Collectors.toList());
+        }
+
+        public static void Postfix(AbstractDungeon dungeon, SaveFile saveFile) {
+            AbstractDungeon.effectList.addAll(tmpEffectList);
+        }
 
         @SpireInsertPatch(rloc = 79)
         public static void Insert1(AbstractDungeon dungeon, SaveFile saveFile) {
