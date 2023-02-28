@@ -23,13 +23,24 @@ public class GremlinWheelGamePatch {
             if (CatFoodCupRacingMod.saves.has("wheelGameCounter")) {
                 count = CatFoodCupRacingMod.saves.getInt("wheelGameCounter");
             }
-            CatFoodCupRacingMod.saves.setInt("wheelGameCounter", count + 1);
-            AbstractDungeon.miscRng = new Random(Settings.seed + count);
-            try {
-                CatFoodCupRacingMod.saves.save();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+            boolean needIncrementCount = false;
+            if (CatFoodCupRacingMod.saves.has("wheelGameLastFloor")) {
+                if (AbstractDungeon.floorNum > CatFoodCupRacingMod.saves.getInt("wheelGameLastFloor")) {
+                    needIncrementCount = true;
+                }
+            } else {
+                needIncrementCount = true;
             }
+            CatFoodCupRacingMod.saves.setInt("wheelGameLastFloor", AbstractDungeon.floorNum);
+            if (needIncrementCount) {
+                CatFoodCupRacingMod.saves.setInt("wheelGameCounter", ++count);
+                try {
+                    CatFoodCupRacingMod.saves.save();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            AbstractDungeon.miscRng = new Random(Settings.seed + count);
         }
     }
 }

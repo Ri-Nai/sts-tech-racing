@@ -33,13 +33,24 @@ public class GremlinMatchGamePatch {
             if (CatFoodCupRacingMod.saves.has("matchGameCounter")) {
                 count = CatFoodCupRacingMod.saves.getInt("matchGameCounter");
             }
-            CatFoodCupRacingMod.saves.setInt("matchGameCounter", count + 1);
-            AbstractDungeon.miscRng = new Random(Settings.seed + count);
-            try {
-                CatFoodCupRacingMod.saves.save();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+            boolean needIncrementCount = false;
+            if (CatFoodCupRacingMod.saves.has("matchGameLastFloor")) {
+                if (AbstractDungeon.floorNum > CatFoodCupRacingMod.saves.getInt("matchGameLastFloor")) {
+                    needIncrementCount = true;
+                }
+            } else {
+                needIncrementCount = true;
             }
+            CatFoodCupRacingMod.saves.setInt("matchGameLastFloor", AbstractDungeon.floorNum);
+            if (needIncrementCount) {
+                CatFoodCupRacingMod.saves.setInt("matchGameCounter", ++count);
+                try {
+                    CatFoodCupRacingMod.saves.save();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            AbstractDungeon.miscRng = new Random(Settings.seed + count);
         }
     }
 

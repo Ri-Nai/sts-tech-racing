@@ -51,6 +51,8 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
         if (AbstractDungeon.floorNum == 0) {
             saves.setInt("wheelGameCounter", 0);
             saves.setInt("matchGameCounter", 0);
+            saves.setInt("wheelGameLastFloor", -1);
+            saves.setInt("matchGameLastFloor", -1);
             try {
                 saves.save();
             } catch (IOException e) {
