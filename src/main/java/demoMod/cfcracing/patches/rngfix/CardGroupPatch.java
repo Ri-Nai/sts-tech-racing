@@ -136,10 +136,13 @@ public class CardGroupPatch {
             }
     )
     public static class PatchGetRandomCard2 {
+        public static com.megacrit.cardcrawl.random.Random bossCardRng;
         public static SpireReturn<AbstractCard> Prefix(CardGroup cardGroup, boolean useRng) {
             if (AbstractDungeon.getCurrRoom() instanceof MonsterRoomBoss) {
-                com.megacrit.cardcrawl.random.Random random = new com.megacrit.cardcrawl.random.Random(Settings.seed + AbstractDungeon.floorNum);
-                return SpireReturn.Return(useRng ? cardGroup.group.get(random.random(cardGroup.group.size() - 1)) : cardGroup.group.get(MathUtils.random(cardGroup.group.size() - 1)));
+                if (bossCardRng == null) {
+                    MonsterRoomBossPatch.PatchOnPlayerEntry.Postfix(null);
+                }
+                return SpireReturn.Return(useRng ? cardGroup.group.get(bossCardRng.random(cardGroup.group.size() - 1)) : cardGroup.group.get(MathUtils.random(cardGroup.group.size() - 1)));
             }
             return SpireReturn.Continue();
         }
