@@ -3,6 +3,9 @@ package demoMod.cfcracing.patches.rngfix;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.saveAndContinue.SaveFile;
+import demoMod.cfcracing.CatFoodCupRacingMod;
+
+import java.io.IOException;
 
 public class SaveFilePatch {
     @SpirePatch(
@@ -18,6 +21,12 @@ public class SaveFilePatch {
             saveFile.ai_seed_count = AbstractDungeon.aiRng.counter;
             saveFile.shuffle_seed_count = AbstractDungeon.shuffleRng.counter;
             saveFile.card_random_seed_count = AbstractDungeon.cardRandomRng.counter;
+            CatFoodCupRacingMod.saves.setInt("cardRarityRngCounter", AbstractDungeonPatch.CardRarityRngFix.cardRarityRng.counter);
+            try {
+                CatFoodCupRacingMod.saves.save();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

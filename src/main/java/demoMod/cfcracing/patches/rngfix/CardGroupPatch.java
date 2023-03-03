@@ -6,9 +6,11 @@ import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.cards.CardGroup;
+import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.neow.NeowEvent;
 import com.megacrit.cardcrawl.neow.NeowRoom;
+import com.megacrit.cardcrawl.rooms.MonsterRoomBoss;
 
 import java.util.*;
 
@@ -96,7 +98,7 @@ public class CardGroupPatch {
                     AbstractCard.CardRarity.class
             }
     )
-    public static class PatchGetRandomCard {
+    public static class PatchGetRandomCard1 {
         public static SpireReturn<AbstractCard> Prefix(CardGroup cardGroup, boolean useRng, AbstractCard.CardRarity rarity) {
             ArrayList<AbstractCard> tmp = new ArrayList<>();
 
@@ -120,6 +122,26 @@ public class CardGroupPatch {
                     return SpireReturn.Return(tmp.get(MathUtils.random(tmp.size() - 1)));
                 }
             }
+        }
+    }
+
+    /**
+     * 保证同样的种子同样的boss房掉落的金卡是相同的
+     */
+    @SpirePatch(
+            clz = CardGroup.class,
+            method = "getRandomCard",
+            paramtypez = {
+                    boolean.class
+            }
+    )
+    public static class PatchGetRandomCard2 {
+        public static SpireReturn<AbstractCard> Prefix(CardGroup cardGroup, boolean useRng) {
+            if (AbstractDungeon.getCurrRoom() instanceof MonsterRoomBoss) {
+                com.megacrit.cardcrawl.random.Random random = new com.megacrit.cardcrawl.random.Random(Settings.seed + AbstractDungeon.floorNum);
+                return SpireReturn.Return(useRng ? cardGroup.group.get(random.random(cardGroup.group.size() - 1)) : cardGroup.group.get(MathUtils.random(cardGroup.group.size() - 1)));
+            }
+            return SpireReturn.Continue();
         }
     }
 }

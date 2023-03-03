@@ -29,7 +29,9 @@ import com.megacrit.cardcrawl.saveAndContinue.SaveFile;
 import com.megacrit.cardcrawl.vfx.AbstractGameEffect;
 import com.megacrit.cardcrawl.vfx.InfiniteSpeechBubble;
 import com.megacrit.cardcrawl.vfx.cardManip.ShowCardAndObtainEffect;
+import demoMod.cfcracing.CatFoodCupRacingMod;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -163,11 +165,11 @@ public class AbstractDungeonPatch {
     public static class PatchReturnTrulyRandomCardFromAvailable {
         public static SpireReturn<AbstractCard> Prefix(AbstractCard card, Random random) {
             List<AbstractCard> list = new ArrayList<>();
-            switch (card.color) {
-                case COLORLESS:
+            switch (card.color.name()) {
+                case "COLORLESS":
                     addCardsToTmpPool(list, AbstractDungeon.colorlessCardPool.group, card);
                     break;
-                case CURSE:
+                case "CURSE":
                     addCardsToTmpPool(list, AbstractDungeon.curseCardPool.group.stream().filter(card1 -> !(card1 instanceof AscendersBane || card1 instanceof CurseOfTheBell || card1 instanceof Necronomicurse || card1 instanceof Pride)).collect(Collectors.toList()), card);
                     break;
                 default:
@@ -193,6 +195,46 @@ public class AbstractDungeonPatch {
                 } else if (i == 0 && card.cardID.equals(cardToTransform.cardID)) {
                     tmpPool.add(cardsToAdd.get(1));
                 }
+            }
+        }
+    }
+
+    public static class CardRarityRngFix {
+        public static Random cardRarityRng;
+
+        @SpirePatch(
+                clz = AbstractDungeon.class,
+                method = "generateSeeds"
+        )
+        public static class PatchGenerateSeeds {
+            public static void Postfix() {
+                cardRarityRng = new Random(Settings.seed);
+            }
+        }
+
+        @SpirePatch(
+                clz = AbstractDungeon.class,
+                method = "loadSeeds"
+        )
+        public static class PatchLoadSeeds {
+            public static void Postfix(SaveFile save) {
+                try {
+                    CatFoodCupRacingMod.saves.load();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                cardRarityRng = new Random(Settings.seed, CatFoodCupRacingMod.saves.getInt("cardRarityRngCounter"));
+            }
+        }
+
+        @SpirePatch(
+                clz = AbstractDungeon.class,
+                method = "rollRarity",
+                paramtypez = {}
+        )
+        public static class PatchRollRarity {
+            public static SpireReturn<AbstractCard.CardRarity> Prefix() {
+                return SpireReturn.Return(AbstractDungeon.rollRarity(cardRarityRng));
             }
         }
     }
