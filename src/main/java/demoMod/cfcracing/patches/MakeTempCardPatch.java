@@ -92,7 +92,7 @@ public class MakeTempCardPatch {
                 AbstractCard tmp = CardLibrary.getAnyColorCard(AbstractCard.CardType.ATTACK, cardRarity);
 
                 for (AbstractCard c : derp) {
-                    if (c.cardID.equals(tmp.cardID) || CatFoodCupRacingMod.isDisabled(c)) {
+                    if (c.cardID.equals(tmp.cardID)) {
                         dupe = true;
                         break;
                     }
