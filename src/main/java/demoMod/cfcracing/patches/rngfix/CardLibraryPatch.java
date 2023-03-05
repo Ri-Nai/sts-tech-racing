@@ -51,6 +51,8 @@ public class CardLibraryPatch {
             List<AbstractCard> cards = CardLibrary.cards.values().stream().filter(
                     card -> card.rarity == rarity
                             && !card.hasTag(AbstractCard.CardTags.HEALING)
+                            && !(card.type == AbstractCard.CardType.CURSE)
+                            && !(card.type == AbstractCard.CardType.STATUS)
                             && !UnlockTracker.isCardLocked(card.cardID)
                             && !CatFoodCupRacingMod.isDisabled(card)).collect(Collectors.toList());
             Collections.shuffle(cards, new Random(AbstractDungeon.cardRng.randomLong()));
