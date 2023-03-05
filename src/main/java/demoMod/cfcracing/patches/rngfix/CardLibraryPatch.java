@@ -36,6 +36,9 @@ public class CardLibraryPatch {
         }
     }
 
+    /**
+     * 这个是棱镜用的随机掉落牌，原版使用了cardRandomRng，会影响战斗中的随机数，比如电球的攻击目标等
+     */
     @SpirePatch(
             clz = CardLibrary.class,
             method = "getAnyColorCard",
@@ -50,7 +53,7 @@ public class CardLibraryPatch {
                             && !card.hasTag(AbstractCard.CardTags.HEALING)
                             && !UnlockTracker.isCardLocked(card.cardID)
                             && !CatFoodCupRacingMod.isDisabled(card)).collect(Collectors.toList());
-            Collections.shuffle(cards, new Random(AbstractDungeon.cardRandomRng.randomLong()));
+            Collections.shuffle(cards, new Random(AbstractDungeon.cardRng.randomLong()));
             return SpireReturn.Return(cards.get(0));
         }
     }
