@@ -12,6 +12,7 @@ import com.megacrit.cardcrawl.actions.watcher.ForeignInfluenceAction;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.helpers.CardLibrary;
+import com.megacrit.cardcrawl.vfx.cardManip.ShowCardAndAddToDiscardEffect;
 import demoMod.cfcracing.CatFoodCupRacingMod;
 
 import java.util.ArrayList;
@@ -66,6 +67,48 @@ public class MakeTempCardPatch {
             if (CatFoodCupRacingMod.isDisabled(card)) {
                 ReflectionHacks.setPrivate(action, AbstractGameAction.class, "amount", 0);
             }
+        }
+    }
+
+    @SpirePatch(
+            clz = ShowCardAndAddToDiscardEffect.class,
+            method = "update"
+    )
+    public static class PatchShowCardAndAddToDiscardEffectUpdate {
+        public static SpireReturn<Void> Prefix(ShowCardAndAddToDiscardEffect effect) {
+            AbstractCard card = ReflectionHacks.getPrivate(effect, ShowCardAndAddToDiscardEffect.class, "card");
+            if (CatFoodCupRacingMod.isDisabled(card)) {
+                effect.isDone = true;
+                return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
+        }
+    }
+
+    @SpirePatch(
+            clz = ShowCardAndAddToDiscardEffect.class,
+            method = SpirePatch.CONSTRUCTOR,
+            paramtypez = {
+                    AbstractCard.class,
+                    float.class,
+                    float.class
+            }
+    )
+    @SpirePatch(
+            clz = ShowCardAndAddToDiscardEffect.class,
+            method = SpirePatch.CONSTRUCTOR,
+            paramtypez = {
+                    AbstractCard.class
+            }
+    )
+    public static class PatchShowCardAndAddToDiscardEffectConstructor {
+        public static SpireReturn<Void> Prefix(ShowCardAndAddToDiscardEffect effect, AbstractCard srcCard) {
+            if (CatFoodCupRacingMod.isDisabled(srcCard)) {
+                ReflectionHacks.setPrivate(effect, ShowCardAndAddToDiscardEffect.class, "card", srcCard.makeStatEquivalentCopy());
+                effect.isDone = true;
+                return SpireReturn.Return(null);
+            }
+            return SpireReturn.Continue();
         }
     }
 
