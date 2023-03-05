@@ -4,7 +4,6 @@ import com.evacipated.cardcrawl.modthespire.lib.SpireInsertPatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
 import com.megacrit.cardcrawl.cards.AbstractCard;
-import com.megacrit.cardcrawl.cards.CardGroup;
 import com.megacrit.cardcrawl.cards.curses.AscendersBane;
 import com.megacrit.cardcrawl.cards.curses.CurseOfTheBell;
 import com.megacrit.cardcrawl.cards.curses.Necronomicurse;
@@ -27,7 +26,6 @@ import com.megacrit.cardcrawl.helpers.EventHelper;
 import com.megacrit.cardcrawl.random.Random;
 import com.megacrit.cardcrawl.saveAndContinue.SaveFile;
 import com.megacrit.cardcrawl.vfx.AbstractGameEffect;
-import com.megacrit.cardcrawl.vfx.InfiniteSpeechBubble;
 import com.megacrit.cardcrawl.vfx.cardManip.ShowCardAndObtainEffect;
 import demoMod.cfcracing.CatFoodCupRacingMod;
 
@@ -54,7 +52,6 @@ public class AbstractDungeonPatch {
         private static Random monsterHpRng;
         private static Random aiRng;
         private static Random shuffleRng;
-        private static Random cardRandomRng;
         private static List<AbstractGameEffect> tmpEffectList;
 
         /**
@@ -73,7 +70,6 @@ public class AbstractDungeonPatch {
             monsterHpRng = AbstractDungeon.monsterHpRng;
             aiRng = AbstractDungeon.aiRng;
             shuffleRng = AbstractDungeon.shuffleRng;
-            cardRandomRng = AbstractDungeon.cardRandomRng;
         }
 
         @SpireInsertPatch(rloc = 84)
@@ -81,7 +77,6 @@ public class AbstractDungeonPatch {
             AbstractDungeon.monsterHpRng = monsterHpRng;
             AbstractDungeon.aiRng = aiRng;
             AbstractDungeon.shuffleRng = shuffleRng;
-            AbstractDungeon.cardRandomRng = cardRandomRng;
         }
     }
 
@@ -157,7 +152,7 @@ public class AbstractDungeonPatch {
     @SpirePatch(
             clz = AbstractDungeon.class,
             method = "returnTrulyRandomCardFromAvailable",
-            paramtypez ={
+            paramtypez = {
                     AbstractCard.class,
                     Random.class
             }

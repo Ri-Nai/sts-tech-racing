@@ -20,7 +20,6 @@ public class SaveFilePatch {
             saveFile.monster_hp_seed_count = AbstractDungeon.monsterHpRng.counter;
             saveFile.ai_seed_count = AbstractDungeon.aiRng.counter;
             saveFile.shuffle_seed_count = AbstractDungeon.shuffleRng.counter;
-            saveFile.card_random_seed_count = AbstractDungeon.cardRandomRng.counter;
             CatFoodCupRacingMod.saves.setInt("cardRarityRngCounter", AbstractDungeonPatch.CardRarityRngFix.cardRarityRng.counter);
             try {
                 CatFoodCupRacingMod.saves.save();
