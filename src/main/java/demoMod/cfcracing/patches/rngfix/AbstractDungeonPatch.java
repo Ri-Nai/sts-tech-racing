@@ -24,6 +24,7 @@ import com.megacrit.cardcrawl.events.exordium.Mushrooms;
 import com.megacrit.cardcrawl.events.shrines.*;
 import com.megacrit.cardcrawl.helpers.EventHelper;
 import com.megacrit.cardcrawl.random.Random;
+import com.megacrit.cardcrawl.rooms.ShopRoom;
 import com.megacrit.cardcrawl.saveAndContinue.SaveFile;
 import com.megacrit.cardcrawl.vfx.AbstractGameEffect;
 import com.megacrit.cardcrawl.vfx.cardManip.ShowCardAndObtainEffect;
@@ -229,6 +230,9 @@ public class AbstractDungeonPatch {
         )
         public static class PatchRollRarity {
             public static SpireReturn<AbstractCard.CardRarity> Prefix() {
+                if (AbstractDungeon.getCurrRoom() instanceof ShopRoom) {
+                    return SpireReturn.Return(AbstractDungeon.rollRarity(AbstractDungeon.merchantRng));
+                }
                 return SpireReturn.Return(AbstractDungeon.rollRarity(cardRarityRng));
             }
         }

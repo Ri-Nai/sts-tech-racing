@@ -6,11 +6,11 @@ import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.cards.CardGroup;
-import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.neow.NeowEvent;
 import com.megacrit.cardcrawl.neow.NeowRoom;
 import com.megacrit.cardcrawl.rooms.MonsterRoomBoss;
+import com.megacrit.cardcrawl.rooms.ShopRoom;
 
 import java.util.*;
 
@@ -88,7 +88,7 @@ public class CardGroupPatch {
     }
 
     /**
-     * 防止开局选无色牌影响后续的卡牌掉落
+     * 防止开局选无色牌影响后续的卡牌掉落以及商店送货员补牌导致世界线变动
      */
     @SpirePatch(
             clz = CardGroup.class,
@@ -115,6 +115,8 @@ public class CardGroupPatch {
                 if (useRng) {
                     if (AbstractDungeon.getCurrRoom() instanceof NeowRoom) {
                         return SpireReturn.Return(tmp.get(NeowEvent.rng.random(tmp.size() - 1)));
+                    } else if (AbstractDungeon.getCurrRoom() instanceof ShopRoom) {
+                        return SpireReturn.Return(tmp.get(AbstractDungeon.merchantRng.random(tmp.size() - 1)));
                     } else {
                         return SpireReturn.Return(tmp.get(AbstractDungeon.cardRng.random(tmp.size() - 1)));
                     }
