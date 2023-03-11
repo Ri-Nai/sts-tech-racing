@@ -149,4 +149,39 @@ public class CardGroupPatch {
             return SpireReturn.Continue();
         }
     }
+
+    @SpirePatch(
+            clz = CardGroup.class,
+            method = "getRandomCard",
+            paramtypez = {
+                    AbstractCard.CardType.class,
+                    boolean.class
+            }
+    )
+    public static class PatchGetRandomCard3 {
+        public static SpireReturn<AbstractCard> Prefix(CardGroup group, AbstractCard.CardType type, boolean useRng) {
+            List<AbstractCard> tmp = new ArrayList<>();
+
+            for (AbstractCard c : group.group) {
+                if (c.type == type) {
+                    tmp.add(c);
+                }
+            }
+
+            if (tmp.isEmpty()) {
+                return SpireReturn.Return(null);
+            } else {
+                Collections.sort(tmp);
+                if (useRng) {
+                    if (AbstractDungeon.getCurrRoom() instanceof ShopRoom) {
+                        return SpireReturn.Return(tmp.get(AbstractDungeon.merchantRng.random(tmp.size() - 1)));
+                    } else {
+                        return SpireReturn.Return(tmp.get(AbstractDungeon.cardRng.random(tmp.size() - 1)));
+                    }
+                } else {
+                    return SpireReturn.Return(tmp.get(MathUtils.random(tmp.size() - 1)));
+                }
+            }
+        }
+    }
 }
