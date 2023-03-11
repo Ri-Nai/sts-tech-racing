@@ -219,6 +219,9 @@ public class AbstractDungeonPatch {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                if (!CatFoodCupRacingMod.saves.has("cardRarityRngCounter")) {
+                    CatFoodCupRacingMod.saves.setInt("cardRarityRngCounter", 0);
+                }
                 cardRarityRng = new Random(Settings.seed, CatFoodCupRacingMod.saves.getInt("cardRarityRngCounter"));
             }
         }
