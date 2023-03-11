@@ -1,5 +1,6 @@
 package demoMod.cfcracing.patches.rngfix;
 
+import com.evacipated.cardcrawl.modthespire.lib.ByRef;
 import com.evacipated.cardcrawl.modthespire.lib.SpireInsertPatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
@@ -267,6 +268,32 @@ public class AbstractDungeonPatch {
                 return SpireReturn.Return(AbstractDungeon.returnRandomPotion(AbstractPotion.PotionRarity.COMMON, limited));
             } else {
                 return SpireReturn.Return(roll < PotionHelper.POTION_UNCOMMON_CHANCE + PotionHelper.POTION_COMMON_CHANCE ? AbstractDungeon.returnRandomPotion(AbstractPotion.PotionRarity.UNCOMMON, limited) : AbstractDungeon.returnRandomPotion(AbstractPotion.PotionRarity.RARE, limited));
+            }
+        }
+    }
+
+    /**
+     * 防止商店出星系仪改变后续卡牌掉落
+     */
+    @SpirePatch(
+            clz = AbstractDungeon.class,
+            method = "getRewardCards"
+    )
+    public static class PatchGetRewardCards {
+        private static AbstractCard.CardRarity tmpRarity = AbstractCard.CardRarity.COMMON;
+
+        @SpireInsertPatch(rloc = 15, localvars = {"rarity"})
+        public static void Insert1(@ByRef(type = "cards.AbstractCard$CardRarity") Object[] _rarity) {
+            if (AbstractDungeon.currMapNode != null && AbstractDungeon.getCurrRoom() instanceof ShopRoom) {
+                tmpRarity = (AbstractCard.CardRarity) _rarity[0];
+                _rarity[0] = AbstractCard.CardRarity.UNCOMMON;
+            }
+        }
+
+        @SpireInsertPatch(rloc = 34, localvars = {"rarity"})
+        public static void Insert2(@ByRef(type = "cards.AbstractCard$CardRarity") Object[] _rarity) {
+            if (AbstractDungeon.currMapNode != null && AbstractDungeon.getCurrRoom() instanceof ShopRoom) {
+                _rarity[0] = tmpRarity;
             }
         }
     }

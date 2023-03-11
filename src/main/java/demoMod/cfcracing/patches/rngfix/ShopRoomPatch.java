@@ -38,6 +38,7 @@ public class ShopRoomPatch {
                 }
             }
             AbstractDungeon.merchantRng = new Random(Settings.seed + count);
+            room.baseRareCardChance = 12;
         }
     }
 }
