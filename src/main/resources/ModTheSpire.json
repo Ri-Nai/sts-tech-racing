@@ -4,7 +4,7 @@
   "author_list": ["Temple9", "TNoName"],
   "description": "减少了一些可能导致世界线变动的因素，并修复了一些随机数的bug\n新增ban牌功能\n目前还在测试中",
   "credits": "",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "sts_version": "03-07-2022",
   "mts_version": "3.24.0",
   "dependencies": ["basemod", "stslib"]

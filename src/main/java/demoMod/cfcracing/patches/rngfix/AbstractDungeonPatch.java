@@ -23,6 +23,8 @@ import com.megacrit.cardcrawl.events.exordium.DeadAdventurer;
 import com.megacrit.cardcrawl.events.exordium.Mushrooms;
 import com.megacrit.cardcrawl.events.shrines.*;
 import com.megacrit.cardcrawl.helpers.EventHelper;
+import com.megacrit.cardcrawl.helpers.PotionHelper;
+import com.megacrit.cardcrawl.potions.AbstractPotion;
 import com.megacrit.cardcrawl.random.Random;
 import com.megacrit.cardcrawl.rooms.ShopRoom;
 import com.megacrit.cardcrawl.saveAndContinue.SaveFile;
@@ -234,9 +236,37 @@ public class AbstractDungeonPatch {
         public static class PatchRollRarity {
             public static SpireReturn<AbstractCard.CardRarity> Prefix() {
                 if (AbstractDungeon.getCurrRoom() instanceof ShopRoom) {
-                    return SpireReturn.Return(AbstractDungeon.rollRarity(AbstractDungeon.merchantRng));
+                    return SpireReturn.Return(AbstractDungeon.currMapNode == null ? getCardRarityFallback(AbstractDungeon.merchantRng.random(99)) : AbstractDungeon.getCurrRoom().getCardRarity(AbstractDungeon.merchantRng.random(99)));
                 }
                 return SpireReturn.Return(AbstractDungeon.rollRarity(cardRarityRng));
+            }
+
+            private static AbstractCard.CardRarity getCardRarityFallback(int roll) {
+                int rareRate = 3;
+                if (roll < rareRate) {
+                    return AbstractCard.CardRarity.RARE;
+                } else {
+                    return roll < 40 ? AbstractCard.CardRarity.UNCOMMON : AbstractCard.CardRarity.COMMON;
+                }
+            }
+        }
+    }
+
+    @SpirePatch(
+            clz = AbstractDungeon.class,
+            method = "returnRandomPotion",
+            paramtypez = {
+                    boolean.class
+            }
+    )
+    public static class PatchReturnRandomPotion {
+        public static SpireReturn<AbstractPotion> Prefix(boolean limited) {
+            Random rng = AbstractDungeon.currMapNode != null && AbstractDungeon.getCurrRoom() instanceof ShopRoom ? AbstractDungeon.merchantRng : AbstractDungeon.potionRng;
+            int roll = rng.random(0, 99);
+            if (roll < PotionHelper.POTION_COMMON_CHANCE) {
+                return SpireReturn.Return(AbstractDungeon.returnRandomPotion(AbstractPotion.PotionRarity.COMMON, limited));
+            } else {
+                return SpireReturn.Return(roll < PotionHelper.POTION_UNCOMMON_CHANCE + PotionHelper.POTION_COMMON_CHANCE ? AbstractDungeon.returnRandomPotion(AbstractPotion.PotionRarity.UNCOMMON, limited) : AbstractDungeon.returnRandomPotion(AbstractPotion.PotionRarity.RARE, limited));
             }
         }
     }
