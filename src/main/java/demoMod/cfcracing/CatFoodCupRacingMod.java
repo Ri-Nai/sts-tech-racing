@@ -56,6 +56,9 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
             saves.setInt("wheelGameLastFloor", -1);
             saves.setInt("matchGameLastFloor", -1);
             saves.setInt("merchantRngLastFloor", -1);
+            saves.setInt("enemyCounter", 0);
+            saves.setInt("eliteCounter", 0);
+            saves.setInt("eventEnemyCounter", 0);
             try {
                 saves.save();
             } catch (IOException e) {

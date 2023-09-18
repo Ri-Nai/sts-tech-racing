@@ -6,6 +6,7 @@ import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.cards.CardGroup;
+import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.neow.NeowEvent;
 import com.megacrit.cardcrawl.neow.NeowRoom;
@@ -182,6 +183,16 @@ public class CardGroupPatch {
                     return SpireReturn.Return(tmp.get(MathUtils.random(tmp.size() - 1)));
                 }
             }
+        }
+    }
+
+    @SpirePatch(
+            clz = CardGroup.class,
+            method = "initializeDeck"
+    )
+    public static class PatchInitializeDeck {
+        public static void Prefix(CardGroup cardGroup, CardGroup masterDeck) {
+            AbstractDungeon.shuffleRng = new com.megacrit.cardcrawl.random.Random(Settings.seed, AbstractDungeon.miscRng.counter);
         }
     }
 }

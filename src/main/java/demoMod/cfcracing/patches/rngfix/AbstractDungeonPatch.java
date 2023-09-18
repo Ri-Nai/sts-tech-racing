@@ -297,4 +297,47 @@ public class AbstractDungeonPatch {
             }
         }
     }
+
+    @SpirePatch(
+            clz = AbstractDungeon.class,
+            method = "getMonsterForRoomCreation"
+    )
+
+    public static class PatchGetMonsterForRoomCreation {
+        public static void Prefix() {
+            int count;
+            if (CatFoodCupRacingMod.saves.has("enemyCounter")) {
+                count = CatFoodCupRacingMod.saves.getInt("enemyCounter");
+                count++;
+                CatFoodCupRacingMod.saves.setInt("enemyCounter", count);
+                try {
+                    CatFoodCupRacingMod.saves.save();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                MonsterHelperPatch.PatchGetEncounter.encounterCounter = count;
+            }
+        }
+    }
+
+    @SpirePatch(
+            clz = AbstractDungeon.class,
+            method = "getEliteMonsterForRoomCreation"
+    )
+    public static class PatchGetEliteMonsterForRoomCreation {
+        public static void Prefix() {
+            int count;
+            if (CatFoodCupRacingMod.saves.has("eliteCounter")) {
+                count = CatFoodCupRacingMod.saves.getInt("eliteCounter");
+                count++;
+                CatFoodCupRacingMod.saves.setInt("eliteCounter", count);
+                try {
+                    CatFoodCupRacingMod.saves.save();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                MonsterHelperPatch.PatchGetEncounter.encounterCounter = count;
+            }
+        }
+    }
 }
