@@ -31,7 +31,7 @@ public class MonsterHelperPatch {
                 }
             }
             if (AbstractDungeon.getCurrRoom() instanceof MonsterRoomBoss) {
-                encounterCounter = 0;
+                encounterCounter = 1;
             }
             AbstractDungeon.miscRng = new Random(Settings.seed + encounterCounter * AbstractDungeon.actNum * 100L);
             AbstractDungeon.aiRng = new Random(Settings.seed + encounterCounter * AbstractDungeon.actNum * 100L);
