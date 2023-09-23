@@ -53,9 +53,6 @@ public class AbstractDungeonPatch {
             }
     )
     public static class PatchNextRoomTransition {
-        private static Random monsterHpRng;
-        private static Random aiRng;
-        private static Random shuffleRng;
         private static List<AbstractGameEffect> tmpEffectList;
 
         /**
@@ -67,33 +64,6 @@ public class AbstractDungeonPatch {
 
         public static void Postfix(AbstractDungeon dungeon, SaveFile saveFile) {
             AbstractDungeon.effectList.addAll(tmpEffectList);
-        }
-
-        @SpireInsertPatch(rloc = 79)
-        public static void Insert1(AbstractDungeon dungeon, SaveFile saveFile) {
-            monsterHpRng = AbstractDungeon.monsterHpRng;
-            aiRng = AbstractDungeon.aiRng;
-            shuffleRng = AbstractDungeon.shuffleRng;
-        }
-
-        @SpireInsertPatch(rloc = 84)
-        public static void Insert2(AbstractDungeon dungeon, SaveFile saveFile) {
-            AbstractDungeon.monsterHpRng = monsterHpRng;
-            AbstractDungeon.aiRng = aiRng;
-            AbstractDungeon.shuffleRng = shuffleRng;
-        }
-    }
-
-    @SpirePatch(
-            clz = AbstractDungeon.class,
-            method = "loadSeeds"
-    )
-    public static class PatchLoadSeeds {
-        public static void Postfix(SaveFile saveFile) {
-            AbstractDungeon.monsterHpRng = new Random(Settings.seed, saveFile.monster_hp_seed_count);
-            AbstractDungeon.aiRng = new Random(Settings.seed, saveFile.ai_seed_count);
-            AbstractDungeon.shuffleRng = new Random(Settings.seed, saveFile.shuffle_seed_count);
-            AbstractDungeon.cardRandomRng = new Random(Settings.seed, saveFile.card_random_seed_count);
         }
     }
 
@@ -294,49 +264,6 @@ public class AbstractDungeonPatch {
         public static void Insert2(@ByRef(type = "cards.AbstractCard$CardRarity") Object[] _rarity) {
             if (AbstractDungeon.currMapNode != null && AbstractDungeon.getCurrRoom() instanceof ShopRoom) {
                 _rarity[0] = tmpRarity;
-            }
-        }
-    }
-
-    @SpirePatch(
-            clz = AbstractDungeon.class,
-            method = "getMonsterForRoomCreation"
-    )
-
-    public static class PatchGetMonsterForRoomCreation {
-        public static void Prefix() {
-            int count;
-            if (CatFoodCupRacingMod.saves.has("enemyCounter")) {
-                count = CatFoodCupRacingMod.saves.getInt("enemyCounter");
-                count++;
-                CatFoodCupRacingMod.saves.setInt("enemyCounter", count);
-                try {
-                    CatFoodCupRacingMod.saves.save();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-                MonsterHelperPatch.PatchGetEncounter.encounterCounter = count;
-            }
-        }
-    }
-
-    @SpirePatch(
-            clz = AbstractDungeon.class,
-            method = "getEliteMonsterForRoomCreation"
-    )
-    public static class PatchGetEliteMonsterForRoomCreation {
-        public static void Prefix() {
-            int count;
-            if (CatFoodCupRacingMod.saves.has("eliteCounter")) {
-                count = CatFoodCupRacingMod.saves.getInt("eliteCounter");
-                count++;
-                CatFoodCupRacingMod.saves.setInt("eliteCounter", count);
-                try {
-                    CatFoodCupRacingMod.saves.save();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-                MonsterHelperPatch.PatchGetEncounter.encounterCounter = count;
             }
         }
     }

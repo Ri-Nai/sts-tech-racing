@@ -185,14 +185,4 @@ public class CardGroupPatch {
             }
         }
     }
-
-    @SpirePatch(
-            clz = CardGroup.class,
-            method = "initializeDeck"
-    )
-    public static class PatchInitializeDeck {
-        public static void Prefix(CardGroup cardGroup, CardGroup masterDeck) {
-            AbstractDungeon.shuffleRng = new com.megacrit.cardcrawl.random.Random(Settings.seed, AbstractDungeon.miscRng.counter);
-        }
-    }
 }

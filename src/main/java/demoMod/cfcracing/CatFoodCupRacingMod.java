@@ -14,6 +14,7 @@ import com.megacrit.cardcrawl.helpers.CardLibrary;
 import com.megacrit.cardcrawl.helpers.ImageMaster;
 import com.megacrit.cardcrawl.localization.UIStrings;
 import demoMod.cfcracing.entity.CardSetting;
+import demoMod.cfcracing.patches.rngfix.MonsterHelperPatch;
 import demoMod.cfcracing.ui.CardFilterModMenu;
 
 import java.io.IOException;
@@ -56,9 +57,8 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
             saves.setInt("wheelGameLastFloor", -1);
             saves.setInt("matchGameLastFloor", -1);
             saves.setInt("merchantRngLastFloor", -1);
-            saves.setInt("enemyCounter", 0);
-            saves.setInt("eliteCounter", 0);
-            saves.setInt("eventEnemyCounter", 0);
+            saves.setFloat("totalTime", 0);
+            saves.setFloat("correctTime", 0);
             try {
                 saves.save();
             } catch (IOException e) {
@@ -87,8 +87,7 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
                 setting.saveToData(saves);
             }
             saves.save();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -163,6 +162,7 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
         settingsPanel.addUIElement(subMenu);
         Texture badgeTexture = ImageMaster.loadImage("cfcImages/ui/badge.png");
         BaseMod.registerModBadge(badgeTexture, "CFC Racing Mod", "Temple9", "todo", settingsPanel);
+        BaseMod.addSaveField("cfc:encounterPool", new MonsterHelperPatch());
     }
 
     @Override
