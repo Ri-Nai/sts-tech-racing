@@ -7,17 +7,20 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.evacipated.cardcrawl.modthespire.lib.SpireConfig;
 import com.evacipated.cardcrawl.modthespire.lib.SpireInitializer;
+import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.helpers.CardLibrary;
 import com.megacrit.cardcrawl.helpers.ImageMaster;
+import com.megacrit.cardcrawl.localization.BlightStrings;
 import com.megacrit.cardcrawl.localization.UIStrings;
 import demoMod.cfcracing.entity.CardSetting;
-import demoMod.cfcracing.patches.rngfix.MonsterHelperPatch;
+import demoMod.cfcracing.patches.SaveLoadCheck;
 import demoMod.cfcracing.ui.CardFilterModMenu;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -27,9 +30,11 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
                                             PostInitializeSubscriber,
                                             PostDungeonInitializeSubscriber,
                                             StartActSubscriber,
-                                            EditStringsSubscriber {
+                                            EditStringsSubscriber, PostUpdateSubscriber{
     public static SpireConfig saves;
     public static HashMap<String, CardSetting> configSettings = new HashMap<>();
+
+    public static ArrayList<AbstractGameAction> MyActions=new ArrayList<>();
 
     static {
         try {
@@ -57,8 +62,7 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
             saves.setInt("wheelGameLastFloor", -1);
             saves.setInt("matchGameLastFloor", -1);
             saves.setInt("merchantRngLastFloor", -1);
-            saves.setFloat("totalTime", 0);
-            saves.setFloat("correctTime", 0);
+            saves.setFloat("totalTime",0);
             try {
                 saves.save();
             } catch (IOException e) {
@@ -87,7 +91,8 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
                 setting.saveToData(saves);
             }
             saves.save();
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -162,7 +167,7 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
         settingsPanel.addUIElement(subMenu);
         Texture badgeTexture = ImageMaster.loadImage("cfcImages/ui/badge.png");
         BaseMod.registerModBadge(badgeTexture, "CFC Racing Mod", "Temple9", "todo", settingsPanel);
-        BaseMod.addSaveField("cfc:encounterPool", new MonsterHelperPatch());
+        BaseMod.addSaveField("cfc:SLCheck",new SaveLoadCheck());
     }
 
     @Override
@@ -175,5 +180,15 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
         String language = Settings.language.name().toLowerCase(Locale.ROOT);
         String uiStrings = Gdx.files.internal("localizations/" + language + "/CFCRacing-UIStrings.json").readString("UTF-8");
         BaseMod.loadCustomStrings(UIStrings.class, uiStrings);
+        String blightStrings = Gdx.files.internal("localizations/" + language + "/CFCRacing-BlightStrings.json").readString("UTF-8");
+        BaseMod.loadCustomStrings(BlightStrings.class, blightStrings);
+    }
+
+    @Override
+    public void receivePostUpdate() {
+        if(!MyActions.isEmpty()){
+            MyActions.get(0).update();
+            if(MyActions.get(0).isDone) MyActions.remove(0);
+        }
     }
 }
