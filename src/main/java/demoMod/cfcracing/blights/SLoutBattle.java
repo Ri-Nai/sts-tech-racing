@@ -16,7 +16,7 @@ public class SLoutBattle extends AbstractBlight {
 
     public static final String NAME;
 
-    public static final String[]DESCRIPTION;
+    public static final String[] DESCRIPTION;
 
     private AbstractPlayer p;
 
@@ -31,6 +31,7 @@ public class SLoutBattle extends AbstractBlight {
         this.p = AbstractDungeon.player;
         this.counter = -1;
     }
+
     public void updateDescription() {
         this.description = DESCRIPTION[0];
         this.tips.clear();

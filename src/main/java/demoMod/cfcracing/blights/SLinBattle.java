@@ -33,6 +33,7 @@ public class SLinBattle extends AbstractBlight {
         this.counter = -1;
         //BaseMod.addSaveField(ID, (CustomSavableRaw)this);
     }
+
     public void updateDescription() {
         this.description = DESCRIPTION[0];
         this.tips.clear();

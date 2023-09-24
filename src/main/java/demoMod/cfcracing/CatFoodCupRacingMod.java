@@ -125,17 +125,17 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
                 removeCardFromPool(c.getKey());
             }
         }
-        if(!VerifyLegality()){
+        if (!VerifyLegality()) {
             myActions.add(new AbstractGameAction() {
                 @Override
                 public void update() {
-                    if(AbstractDungeon.topLevelEffects == null) return;
-                    this.isDone=true;
-                    String ts="";
-                    for(int i=0;i<10;i++){
-                        ts+="#r警告：卡池过小 NL ";
+                    if (AbstractDungeon.topLevelEffects == null) return;
+                    this.isDone = true;
+                    String ts = "";
+                    for (int i = 0; i < 10; i++) {
+                        ts += "#r警告：卡池过小 NL ";
                     }
-                    AbstractDungeon.topLevelEffects.add(new SpeechTextEffect(Settings.WIDTH/2.0F, Settings.HEIGHT/2.0F, 20.0F, ts, DialogWord.AppearEffect.FADE_IN));
+                    AbstractDungeon.topLevelEffects.add(new SpeechTextEffect(Settings.WIDTH / 2.0F, Settings.HEIGHT / 2.0F, 20.0F, ts, DialogWord.AppearEffect.FADE_IN));
                 }
             });
 
@@ -210,66 +210,65 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
     }
 
 
-    public static boolean VerifyLegality(){
-        if(AbstractDungeon.uncommonCardPool.group.size() + AbstractDungeon.commonCardPool.group.size() < 20) return false;//图书馆。要考虑出金卡概率为0的情况。
-        if(AbstractDungeon.commonCardPool.group.size() < 4) return false;//问号牌卡牌掉落，下同。
-        if(AbstractDungeon.uncommonCardPool.group.size() < 4) return false;
-        if(AbstractDungeon.rareCardPool.group.size() < 4) return false;
+    public static boolean VerifyLegality() {
+        if (AbstractDungeon.uncommonCardPool.group.size() + AbstractDungeon.commonCardPool.group.size() < 20)
+            return false;//图书馆。要考虑出金卡概率为0的情况。
+        if (AbstractDungeon.commonCardPool.group.size() < 4) return false;//问号牌卡牌掉落，下同。
+        if (AbstractDungeon.uncommonCardPool.group.size() < 4) return false;
+        if (AbstractDungeon.rareCardPool.group.size() < 4) return false;
 
-        if(AbstractDungeon.curseCardPool.group.size() < 1) return false;//红钥匙随机诅咒（是这样吗？）
+        if (AbstractDungeon.curseCardPool.group.size() < 1) return false;//红钥匙随机诅咒（是这样吗？）
 
         int cntA = 0;
         int cntS = 0;
-        for(AbstractCard c:AbstractDungeon.commonCardPool.group){
-            if(c.type == AbstractCard.CardType.ATTACK) cntA++;
-            else if(c.type == AbstractCard.CardType.SKILL) cntS++;
+        for (AbstractCard c : AbstractDungeon.commonCardPool.group) {
+            if (c.type == AbstractCard.CardType.ATTACK) cntA++;
+            else if (c.type == AbstractCard.CardType.SKILL) cntS++;
         }
-        if(cntA < 2||cntS < 2) return false;//商店
+        if (cntA < 2 || cntS < 2) return false;//商店
         cntA = 0;
         cntS = 0;
-        for(AbstractCard c:AbstractDungeon.uncommonCardPool.group){
-            if(c.type == AbstractCard.CardType.ATTACK) cntA++;
-            else if(c.type == AbstractCard.CardType.SKILL) cntS++;
+        for (AbstractCard c : AbstractDungeon.uncommonCardPool.group) {
+            if (c.type == AbstractCard.CardType.ATTACK) cntA++;
+            else if (c.type == AbstractCard.CardType.SKILL) cntS++;
         }
-        if(cntA < 2||cntS < 2) return false;//商店
+        if (cntA < 2 || cntS < 2) return false;//商店
         cntA = 0;
         cntS = 0;
         int cntP = 0;
-        for(AbstractCard c:AbstractDungeon.rareCardPool.group){
-            if(c.type == AbstractCard.CardType.ATTACK) cntA++;
-            else if(c.type == AbstractCard.CardType.SKILL) cntS++;
-            else if(c.type == AbstractCard.CardType.POWER) cntP++;
+        for (AbstractCard c : AbstractDungeon.rareCardPool.group) {
+            if (c.type == AbstractCard.CardType.ATTACK) cntA++;
+            else if (c.type == AbstractCard.CardType.SKILL) cntS++;
+            else if (c.type == AbstractCard.CardType.POWER) cntP++;
         }
-        if(cntA < 2||cntS < 2||cntP < 1) return false;//商店 不知道为什么，但是找不到罕见能力会去出稀有能力，所以有就行……吗？
+        if (cntA < 2 || cntS < 2 || cntP < 1) return false;//商店 不知道为什么，但是找不到罕见能力会去出稀有能力，所以有就行……吗？
         int cntR = 0;
         int cntU = 0;
-        for(AbstractCard c:AbstractDungeon.colorlessCardPool.group){
-            if(c.rarity == AbstractCard.CardRarity.RARE) cntR++;
-            else if(c.rarity == AbstractCard.CardRarity.UNCOMMON) cntU++;
+        for (AbstractCard c : AbstractDungeon.colorlessCardPool.group) {
+            if (c.rarity == AbstractCard.CardRarity.RARE) cntR++;
+            else if (c.rarity == AbstractCard.CardRarity.UNCOMMON) cntU++;
         }
-        if(cntR < 4||cntU < 4) return false;//感知石。考虑问号牌的情况下
+        if (cntR < 4 || cntU < 4) return false;//感知石。考虑问号牌的情况下
         cntA = cntS = cntP = 0;
-        for(AbstractCard c:AbstractDungeon.srcCommonCardPool.group){
-            if(c.hasTag(AbstractCard.CardTags.HEALING)) continue;
-            if(c.type == AbstractCard.CardType.ATTACK) cntA++;
-            else if(c.type == AbstractCard.CardType.SKILL) cntS++;
-            else if(c.type == AbstractCard.CardType.POWER) cntP++;
+        for (AbstractCard c : AbstractDungeon.srcCommonCardPool.group) {
+            if (c.hasTag(AbstractCard.CardTags.HEALING)) continue;
+            if (c.type == AbstractCard.CardType.ATTACK) cntA++;
+            else if (c.type == AbstractCard.CardType.SKILL) cntS++;
+            else if (c.type == AbstractCard.CardType.POWER) cntP++;
         }
-        for(AbstractCard c:AbstractDungeon.srcUncommonCardPool.group){
-            if(c.hasTag(AbstractCard.CardTags.HEALING)) continue;
-            if(c.type == AbstractCard.CardType.ATTACK) cntA++;
-            else if(c.type == AbstractCard.CardType.SKILL) cntS++;
-            else if(c.type == AbstractCard.CardType.POWER) cntP++;
+        for (AbstractCard c : AbstractDungeon.srcUncommonCardPool.group) {
+            if (c.hasTag(AbstractCard.CardTags.HEALING)) continue;
+            if (c.type == AbstractCard.CardType.ATTACK) cntA++;
+            else if (c.type == AbstractCard.CardType.SKILL) cntS++;
+            else if (c.type == AbstractCard.CardType.POWER) cntP++;
         }
-        for(AbstractCard c:AbstractDungeon.srcRareCardPool.group){
-            if(c.hasTag(AbstractCard.CardTags.HEALING)) continue;
-            if(c.type == AbstractCard.CardType.ATTACK) cntA++;
-            else if(c.type == AbstractCard.CardType.SKILL) cntS++;
-            else if(c.type == AbstractCard.CardType.POWER) cntP++;
+        for (AbstractCard c : AbstractDungeon.srcRareCardPool.group) {
+            if (c.hasTag(AbstractCard.CardTags.HEALING)) continue;
+            if (c.type == AbstractCard.CardType.ATTACK) cntA++;
+            else if (c.type == AbstractCard.CardType.SKILL) cntS++;
+            else if (c.type == AbstractCard.CardType.POWER) cntP++;
         }
-        if(cntA < 3||cntS < 3||cntP < 3) return false;//药水等
+        if (cntA < 3 || cntS < 3 || cntP < 3) return false;//药水等
         return true;
     }
-
-
 }
