@@ -10,7 +10,9 @@ import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
+import com.megacrit.cardcrawl.screens.DeathScreen;
 import com.megacrit.cardcrawl.screens.DoorUnlockScreen;
+import com.megacrit.cardcrawl.screens.VictoryScreen;
 import com.megacrit.cardcrawl.screens.stats.CharStat;
 import com.megacrit.cardcrawl.ui.DialogWord;
 import com.megacrit.cardcrawl.ui.panels.TopPanel;
@@ -155,6 +157,20 @@ public class TopPanelPatch {
             effect.isDone = true;
             AbstractDungeon.topLevelEffects.add(new SpeechTextEffect(1600.0F * Settings.scale, Settings.HEIGHT - 74.0F * Settings.scale, 2.0F, GameSavedEffect.TEXT[0], DialogWord.AppearEffect.FADE_IN));
             return SpireReturn.Return(null);
+        }
+    }
+
+
+    @SpirePatch(clz = DeathScreen.class,method = "<ctor>")
+    static public class PatchCtor{
+        static public void Prefix(DeathScreen screen){
+            CardCrawlGame.stopClock = true;
+        }
+    }
+    @SpirePatch(clz = VictoryScreen.class,method = "<ctor>")
+    static public class PatchCtor2{
+        static public void Prefix(VictoryScreen screen){
+            CardCrawlGame.stopClock = true;
         }
     }
 }
