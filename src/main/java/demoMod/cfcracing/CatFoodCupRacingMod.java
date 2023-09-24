@@ -126,7 +126,7 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
             }
         }
         if(!VerifyLegality()){
-            MyActions.add(new AbstractGameAction() {
+            myActions.add(new AbstractGameAction() {
                 @Override
                 public void update() {
                     if(AbstractDungeon.topLevelEffects == null) return;
