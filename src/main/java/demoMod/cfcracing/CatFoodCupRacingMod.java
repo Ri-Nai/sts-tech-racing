@@ -30,14 +30,14 @@ import java.util.Map;
 
 @SpireInitializer
 public class CatFoodCupRacingMod implements StartGameSubscriber,
-                                            PostInitializeSubscriber,
-                                            PostDungeonInitializeSubscriber,
-                                            StartActSubscriber,
-                                            EditStringsSubscriber, PostUpdateSubscriber{
+        PostInitializeSubscriber,
+        PostDungeonInitializeSubscriber,
+        StartActSubscriber,
+        EditStringsSubscriber, PostUpdateSubscriber {
     public static SpireConfig saves;
     public static HashMap<String, CardSetting> configSettings = new HashMap<>();
 
-    public static ArrayList<AbstractGameAction> MyActions=new ArrayList<>();
+    public static ArrayList<AbstractGameAction> myActions = new ArrayList<>();
 
     static {
         try {
@@ -65,7 +65,7 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
             saves.setInt("wheelGameLastFloor", -1);
             saves.setInt("matchGameLastFloor", -1);
             saves.setInt("merchantRngLastFloor", -1);
-            saves.setFloat("totalTime",0);
+            saves.setFloat("totalTime", 0);
             try {
                 saves.save();
             } catch (IOException e) {
@@ -94,8 +94,7 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
                 setting.saveToData(saves);
             }
             saves.save();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -185,7 +184,7 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
         settingsPanel.addUIElement(subMenu);
         Texture badgeTexture = ImageMaster.loadImage("cfcImages/ui/badge.png");
         BaseMod.registerModBadge(badgeTexture, "CFC Racing Mod", "Temple9", "todo", settingsPanel);
-        BaseMod.addSaveField("cfc:SLCheck",new SaveLoadCheck());
+        BaseMod.addSaveField("cfc:SLCheck", new SaveLoadCheck());
     }
 
     @Override
@@ -204,9 +203,9 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
 
     @Override
     public void receivePostUpdate() {
-        if(!MyActions.isEmpty()){
-            MyActions.get(0).update();
-            if(MyActions.get(0).isDone) MyActions.remove(0);
+        if (!myActions.isEmpty()) {
+            myActions.get(0).update();
+            if (myActions.get(0).isDone) myActions.remove(0);
         }
     }
 
