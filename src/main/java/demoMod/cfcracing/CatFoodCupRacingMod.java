@@ -9,6 +9,7 @@ import com.evacipated.cardcrawl.modthespire.lib.SpireConfig;
 import com.evacipated.cardcrawl.modthespire.lib.SpireInitializer;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.cards.AbstractCard;
+import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.helpers.CardLibrary;
@@ -125,6 +126,8 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
                 removeCardFromPool(c.getKey());
             }
         }
+        UIStrings uiStrings = CardCrawlGame.languagePack.getUIString("CardFilterModMenu");
+        String warningText = uiStrings == null ? "#r警告：卡池过小！ NL " : uiStrings.TEXT[2];
         if (!VerifyLegality()) {
             myActions.add(new AbstractGameAction() {
                 @Override
@@ -133,7 +136,7 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
                     this.isDone = true;
                     String ts = "";
                     for (int i = 0; i < 10; i++) {
-                        ts += "#r警告：卡池过小 NL ";
+                        ts += warningText;
                     }
                     AbstractDungeon.topLevelEffects.add(new SpeechTextEffect(Settings.WIDTH / 2.0F, Settings.HEIGHT / 2.0F, 20.0F, ts, DialogWord.AppearEffect.FADE_IN));
                 }
