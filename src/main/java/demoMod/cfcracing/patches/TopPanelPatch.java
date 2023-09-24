@@ -4,11 +4,14 @@ import basemod.patches.com.megacrit.cardcrawl.ui.panels.TopPanel.TopPanelPatches
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.evacipated.cardcrawl.modthespire.Loader;
+import com.evacipated.cardcrawl.modthespire.ModInfo;
 import com.evacipated.cardcrawl.modthespire.lib.*;
 import com.megacrit.cardcrawl.characters.AbstractPlayer;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
+import com.megacrit.cardcrawl.helpers.FontHelper;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.screens.DeathScreen;
 import com.megacrit.cardcrawl.screens.DoorUnlockScreen;
@@ -173,4 +176,27 @@ public class TopPanelPatch {
             CardCrawlGame.stopClock = true;
         }
     }
+
+    @SpirePatch(
+            clz = TopPanel.class,
+            method = "render"
+    )
+    static public class PatchRender{
+        @SpireInsertPatch(rloc = 6)
+        static public void Insert(TopPanel panel,SpriteBatch sb){
+            for(ModInfo info: Loader.MODINFOS){
+                if(info.ID.equals("cfc-racing")){
+                    FontHelper.renderFontRightTopAligned(sb, FontHelper.cardDescFont_N,
+
+                            "cfc-racing " + info.ModVersion.toString(), Settings.WIDTH - 16.0F * Settings.scale, Settings.HEIGHT - (Settings.isMobile ? (164.0F * Settings.scale) : (128.0F * Settings.scale)) - 24.0F * Settings.scale, Settings.QUARTER_TRANSPARENT_WHITE_COLOR);
+                break;
+                }
+            }
+
+        }
+    }
+
+
+
+
 }
