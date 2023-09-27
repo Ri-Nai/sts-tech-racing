@@ -3,7 +3,8 @@
     "TEXT": [
       "Reset all card's status.",
       "Reset all color cards to enable state.",
-      "#rWarning: Card pool is too shallow! NL "
+      "#rWarning: Card pool is too shallow! NL ",
+      "Lock the ascension level to 15 in the character select screen."
     ]
   }
 }

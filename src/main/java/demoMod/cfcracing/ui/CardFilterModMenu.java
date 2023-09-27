@@ -102,7 +102,7 @@ public class CardFilterModMenu implements TabBarListener, ScrollBarListener, IUI
         this.scrollBar = new ScrollBar(this);
         this.overlay_deprecated = new Texture("cfcImages/ui/cardLibrary/disabledCardX.png");
         this.resetButton = new Texture("cfcImages/ui/cardLibrary/resetButton.png");
-        this.resetButtonHb = new Hitbox(100.0F * Settings.scale, 880.0F * Settings.scale, 200.0F * Settings.scale, 200.0F * Settings.scale);
+        this.resetButtonHb = new Hitbox(100.0F * Settings.scale, 820.0F * Settings.scale, 200.0F * Settings.scale, 200.0F * Settings.scale);
         this.resetButtonColor = new Color(0.5F, 0.5F, 0.5F, 1.0F);
     }
 

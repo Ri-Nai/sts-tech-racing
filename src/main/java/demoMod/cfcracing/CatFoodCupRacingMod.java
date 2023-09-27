@@ -1,9 +1,11 @@
 package demoMod.cfcracing;
 
 import basemod.BaseMod;
+import basemod.ModLabeledToggleButton;
 import basemod.ModPanel;
 import basemod.interfaces.*;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.evacipated.cardcrawl.modthespire.lib.SpireConfig;
 import com.evacipated.cardcrawl.modthespire.lib.SpireInitializer;
@@ -13,6 +15,7 @@ import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.helpers.CardLibrary;
+import com.megacrit.cardcrawl.helpers.FontHelper;
 import com.megacrit.cardcrawl.helpers.ImageMaster;
 import com.megacrit.cardcrawl.localization.BlightStrings;
 import com.megacrit.cardcrawl.localization.UIStrings;
@@ -39,6 +42,8 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
     public static HashMap<String, CardSetting> configSettings = new HashMap<>();
 
     public static ArrayList<AbstractGameAction> myActions = new ArrayList<>();
+
+    public static boolean defaultA15Option = false;
 
     static {
         try {
@@ -182,9 +187,22 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
             configSettings.put(c.getKey(), new CardSetting(c.getKey(), c.getKey()));
         }
         loadSettingsData();
+        UIStrings uiStrings = CardCrawlGame.languagePack.getUIString("CardFilterModMenu");
         CardFilterModMenu subMenu = new CardFilterModMenu(settingsPanel);
         subMenu.initialize();
         settingsPanel.addUIElement(subMenu);
+        ModLabeledToggleButton defaultA15 = new ModLabeledToggleButton(uiStrings.TEXT[3], 30.0F, 1025.0F, Color.WHITE, FontHelper.buttonLabelFont, defaultA15Option, settingsPanel, (me) -> {},
+                (me) -> {
+                    defaultA15Option = me.enabled;
+                    saves.setBool("defaultA15Option", defaultA15Option);
+                    try {
+                        saves.save();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+        );
+        settingsPanel.addUIElement(defaultA15);
         Texture badgeTexture = ImageMaster.loadImage("cfcImages/ui/badge.png");
         BaseMod.registerModBadge(badgeTexture, "CFC Racing Mod", "Temple9", "todo", settingsPanel);
         BaseMod.addSaveField("cfc:SLCheck", new SaveLoadCheck());
