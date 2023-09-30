@@ -196,6 +196,31 @@ public class TopPanelPatch {
         }
     }
 
+    @SpirePatch(clz = CharStat.class,method = "formatHMSM",paramtypez = {float.class})
+    static public class PatchFormatHMSM{
+        static public SpireReturn<String> Prefix(float t){
+            String res = "";
+            if(t < 0){
+                t=-t;
+                res="-";
+            }
+            long duration = (long)t;
+            int ms = (int)((t - duration)*1000);
+            int seconds = (int)(duration % 60L);
+            duration /= 60L;
+            int minutes = (int)(duration % 60L);
+            int hours = (int)t / 3600;
+            if (hours > 0) {
+                res += String.format(CharStat.TEXT[24], hours, minutes, seconds);
+            } else {
+                res += String.format(CharStat.TEXT[25], minutes, seconds);
+            }
+            res += String.format(".%03d",ms);
+            return SpireReturn.Return(res);
+        }
+    }
+
+
 
 
 
