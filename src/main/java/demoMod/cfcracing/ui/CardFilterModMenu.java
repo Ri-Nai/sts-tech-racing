@@ -17,6 +17,7 @@ import com.megacrit.cardcrawl.helpers.*;
 import com.megacrit.cardcrawl.helpers.controller.CInputActionSet;
 import com.megacrit.cardcrawl.helpers.input.InputHelper;
 import com.megacrit.cardcrawl.localization.UIStrings;
+import com.megacrit.cardcrawl.random.Random;
 import com.megacrit.cardcrawl.screens.SingleCardViewPopup;
 import com.megacrit.cardcrawl.screens.compendium.CardLibSortHeader;
 import com.megacrit.cardcrawl.screens.mainMenu.*;
@@ -441,8 +442,47 @@ public class CardFilterModMenu implements TabBarListener, ScrollBarListener, IUI
         }
     }
 
+
+    private Long hashCards(CardGroup cgp){
+        long n = 0;
+        for(AbstractCard c:cgp.group){
+            if(CatFoodCupRacingMod.configSettings.get(c.cardID).isDisabled) n+=1;
+            n<<=1;
+            n%=0xFABCDE0123456789L;
+        }
+        //if(n==0) return 0L;
+        Random tmpR = new Random(n);
+        n = tmpR.randomLong();
+        if(n == 0L) n = 42L;
+        return n;
+    }
+    private Long hashCards(){
+        long m = 0;
+        Random tmpR;
+
+        m ^= hashCards(this.redCards)*3;
+        m ^= hashCards(this.greenCards)*5;
+        m ^= hashCards(this.blueCards)*7;
+        m ^= hashCards(this.purpleCards)*11;
+        m ^= hashCards(this.colorlessCards)*13;
+        m ^= hashCards(this.curseCards)*19;
+
+        //if(m==0) return SeedHelper.getString(0).substring(0,5);
+        tmpR = new Random(m);
+        m = tmpR.randomLong();
+        if(m == 0L) m = 42L;
+        return m;
+    }
+
     @Override
     public void render(SpriteBatch sb) {
+        FontHelper.cardEnergyFont_L.getData().setScale(1.5F);
+        FontHelper.renderFontLeftTopAligned(sb, FontHelper.cardEnergyFont_L,
+
+                SeedHelper.getString(this.hashCards()).substring(0,5), 70.0F * Settings.scale, Settings.HEIGHT*2/3, Settings.GOLD_COLOR);
+        FontHelper.renderFontLeftTopAligned(sb, FontHelper.cardEnergyFont_L,
+
+                SeedHelper.getString(this.hashCards(this.visibleCards)).substring(0,5), 70.0F * Settings.scale, Settings.HEIGHT*2/3 - 75.0F * Settings.scale, this.colorBar.getBarColor());
         this.colorBar.render(sb, (this.visibleCards.getBottomCard()).current_y + 230.0F * Settings.scale);
         this.sortHeader.render(sb);
         renderGroup(sb, this.visibleCards);
