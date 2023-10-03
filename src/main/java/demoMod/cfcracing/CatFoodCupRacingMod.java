@@ -206,6 +206,9 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
         Texture badgeTexture = ImageMaster.loadImage("cfcImages/ui/badge.png");
         BaseMod.registerModBadge(badgeTexture, "CFC Racing Mod", "Temple9", "todo", settingsPanel);
         BaseMod.addSaveField("cfc:SLCheck", new SaveLoadCheck());
+        if (saves.has("defaultA15Option")) {
+            defaultA15Option = saves.getBool("defaultA15Option");
+        }
     }
 
     @Override
