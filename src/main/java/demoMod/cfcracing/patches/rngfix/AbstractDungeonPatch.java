@@ -273,9 +273,10 @@ public class AbstractDungeonPatch {
             method = "dungeonTransitionSetup"
     )
     public static class PatchDungeonTransitionSetup {
-        @SpireInsertPatch(rloc = 3)
-        public static void Insert() {
-            AbstractDungeon.eventRng.setCounter(AbstractDungeon.actNum * 200);
+        public static void Prefix() {
+            if(AbstractDungeon.actNum > 0)
+                AbstractDungeon.eventRng.setCounter(AbstractDungeon.actNum * 200);
         }
     }
+    
 }
