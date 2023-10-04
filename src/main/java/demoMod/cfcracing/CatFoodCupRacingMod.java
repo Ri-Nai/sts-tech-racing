@@ -23,7 +23,6 @@ import com.megacrit.cardcrawl.ui.DialogWord;
 import com.megacrit.cardcrawl.vfx.SpeechTextEffect;
 import demoMod.cfcracing.entity.CardSetting;
 import demoMod.cfcracing.patches.SaveLoadCheck;
-import demoMod.cfcracing.patches.rngfix.EventHelperPatch;
 import demoMod.cfcracing.patches.rngfix.MonsterHelperPatch;
 import demoMod.cfcracing.ui.CardFilterModMenu;
 

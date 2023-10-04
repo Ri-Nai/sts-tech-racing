@@ -4,6 +4,7 @@ import com.evacipated.cardcrawl.modthespire.lib.ByRef;
 import com.evacipated.cardcrawl.modthespire.lib.SpireInsertPatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
+import com.google.gson.reflect.TypeToken;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.cards.curses.AscendersBane;
 import com.megacrit.cardcrawl.cards.curses.CurseOfTheBell;
@@ -278,5 +279,16 @@ public class AbstractDungeonPatch {
                 AbstractDungeon.eventRng.setCounter(AbstractDungeon.actNum * 200);
         }
     }
-    
+
+    @SpirePatch(
+            clz = AbstractDungeon.class,
+            method = "loadSave"
+    )
+    public static class PatchLoadSave {
+        public static void Postfix(AbstractDungeon dungeon, SaveFile saveFile) {
+            if (CatFoodCupRacingMod.saves.has("shrines")) {
+                AbstractDungeon.shrineList = SaveFilePatch.gson.fromJson(CatFoodCupRacingMod.saves.getString("shrines"), new TypeToken<ArrayList<String>>(){}.getType());
+            }
+        }
+    }
 }
