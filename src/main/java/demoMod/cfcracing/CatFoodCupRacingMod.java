@@ -23,6 +23,7 @@ import com.megacrit.cardcrawl.ui.DialogWord;
 import com.megacrit.cardcrawl.vfx.SpeechTextEffect;
 import demoMod.cfcracing.entity.CardSetting;
 import demoMod.cfcracing.patches.SaveLoadCheck;
+import demoMod.cfcracing.patches.TopPanelPatch;
 import demoMod.cfcracing.patches.rngfix.MonsterHelperPatch;
 import demoMod.cfcracing.ui.CardFilterModMenu;
 
@@ -74,6 +75,7 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
             saves.setInt("merchantRngLastFloor", -1);
             saves.setFloat("totalTime", 0);
             saves.setFloat("correctTime", 0);
+            TopPanelPatch.correct = 0.0F;
 
             saves.setInt("EventRngCountLast", -1);
             saves.setString("EventResultLast", "");
