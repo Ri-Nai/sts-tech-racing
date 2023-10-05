@@ -141,11 +141,17 @@ public class TopPanelPatch {
         static public void Prefix(AbstractDungeon abstractDungeon) {
             if (!CardCrawlGame.stopClock) {
                 if (correct > 0.5F) {
-                    CardCrawlGame.playtime -= Gdx.graphics.getDeltaTime() * 60;
-                    correct -= Gdx.graphics.getDeltaTime() * 60;
+                    CardCrawlGame.playtime -= Gdx.graphics.getDeltaTime() * 60.0F;
+                    correct -= Gdx.graphics.getDeltaTime() * 60.0F;
                 } else if (correct > 0.0F) {
                     CardCrawlGame.playtime -= correct;
                     correct = 0.0F;
+                    CatFoodCupRacingMod.saves.setFloat("correctTime", 0.0F);
+                    try {
+                        CatFoodCupRacingMod.saves.save();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
             }
         }
