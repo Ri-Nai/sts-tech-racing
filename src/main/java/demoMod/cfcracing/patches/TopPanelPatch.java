@@ -99,9 +99,14 @@ public class TopPanelPatch {
     static public class PatchOnFinalBossVictoryLogic {
         @SpireInsertPatch(rloc = 12)
         static public void Insert(AbstractMonster monster) {
-            if (AbstractDungeon.actNum < 4)
+            if (AbstractDungeon.actNum < 4) {
                 CatFoodCupRacingMod.saves.setFloat("totalTime", CardCrawlGame.playtime);
-            else if (CatFoodCupRacingMod.saves.has("totalTime")) {
+                try {
+                    CatFoodCupRacingMod.saves.save();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            } else if (CatFoodCupRacingMod.saves.has("totalTime")) {
                 CardCrawlGame.playtime = min(CardCrawlGame.playtime, CatFoodCupRacingMod.saves.getFloat("totalTime"));
             }
         }
