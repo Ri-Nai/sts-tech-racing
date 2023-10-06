@@ -99,9 +99,14 @@ public class TopPanelPatch {
     static public class PatchOnFinalBossVictoryLogic {
         @SpireInsertPatch(rloc = 12)
         static public void Insert(AbstractMonster monster) {
-            if (AbstractDungeon.actNum < 4)
+            if (AbstractDungeon.actNum < 4) {
                 CatFoodCupRacingMod.saves.setFloat("totalTime", CardCrawlGame.playtime);
-            else if (CatFoodCupRacingMod.saves.has("totalTime")) {
+                try {
+                    CatFoodCupRacingMod.saves.save();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            } else if (CatFoodCupRacingMod.saves.has("totalTime")) {
                 CardCrawlGame.playtime = min(CardCrawlGame.playtime, CatFoodCupRacingMod.saves.getFloat("totalTime"));
             }
         }
@@ -141,11 +146,17 @@ public class TopPanelPatch {
         static public void Prefix(AbstractDungeon abstractDungeon) {
             if (!CardCrawlGame.stopClock) {
                 if (correct > 0.5F) {
-                    CardCrawlGame.playtime -= Gdx.graphics.getDeltaTime() * 60;
-                    correct -= Gdx.graphics.getDeltaTime() * 60;
+                    CardCrawlGame.playtime -= Gdx.graphics.getDeltaTime() * 60.0F;
+                    correct -= Gdx.graphics.getDeltaTime() * 60.0F;
                 } else if (correct > 0.0F) {
                     CardCrawlGame.playtime -= correct;
                     correct = 0.0F;
+                    CatFoodCupRacingMod.saves.setFloat("correctTime", 0.0F);
+                    try {
+                        CatFoodCupRacingMod.saves.save();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
             }
         }
@@ -195,6 +206,31 @@ public class TopPanelPatch {
 
         }
     }
+
+    @SpirePatch(clz = CharStat.class,method = "formatHMSM",paramtypez = {float.class})
+    static public class PatchFormatHMSM{
+        static public SpireReturn<String> Prefix(float t){
+            String res = "";
+            if(t < 0){
+                t=-t;
+                res="-";
+            }
+            long duration = (long)t;
+            int ms = (int)((t - duration)*1000);
+            int seconds = (int)(duration % 60L);
+            duration /= 60L;
+            int minutes = (int)(duration % 60L);
+            int hours = (int)t / 3600;
+            if (hours > 0) {
+                res += String.format(CharStat.TEXT[24], hours, minutes, seconds);
+            } else {
+                res += String.format(CharStat.TEXT[25], minutes, seconds);
+            }
+            res += String.format(".%03d",ms);
+            return SpireReturn.Return(res);
+        }
+    }
+
 
 
 

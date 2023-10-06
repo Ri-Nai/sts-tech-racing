@@ -23,6 +23,8 @@ import com.megacrit.cardcrawl.ui.DialogWord;
 import com.megacrit.cardcrawl.vfx.SpeechTextEffect;
 import demoMod.cfcracing.entity.CardSetting;
 import demoMod.cfcracing.patches.SaveLoadCheck;
+import demoMod.cfcracing.patches.TopPanelPatch;
+import demoMod.cfcracing.patches.rngfix.MonsterHelperPatch;
 import demoMod.cfcracing.ui.CardFilterModMenu;
 
 import java.io.IOException;
@@ -72,6 +74,11 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
             saves.setInt("matchGameLastFloor", -1);
             saves.setInt("merchantRngLastFloor", -1);
             saves.setFloat("totalTime", 0);
+            saves.setFloat("correctTime", 0);
+            TopPanelPatch.correct = 0.0F;
+
+            saves.setInt("EventRngCountLast", -1);
+            saves.setString("EventResultLast", "");
             try {
                 saves.save();
             } catch (IOException e) {
@@ -206,6 +213,10 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
         Texture badgeTexture = ImageMaster.loadImage("cfcImages/ui/badge.png");
         BaseMod.registerModBadge(badgeTexture, "CFC Racing Mod", "Temple9", "todo", settingsPanel);
         BaseMod.addSaveField("cfc:SLCheck", new SaveLoadCheck());
+        BaseMod.addSaveField("cfc:encounterPool", new MonsterHelperPatch());
+        if (saves.has("defaultA15Option")) {
+            defaultA15Option = saves.getBool("defaultA15Option");
+        }
     }
 
     @Override

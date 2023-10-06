@@ -18,7 +18,16 @@ public class MonsterHelperPatch implements CustomSavable<HashMap<String, Integer
     public static HashMap<String, Integer> encounterMap = new HashMap<>();
 
     public HashMap<String, Integer> onSave() {
-        if (AbstractDungeon.floorNum < 1) encounterMap.clear();
+        if (AbstractDungeon.floorNum < 1) {
+            encounterMap.clear();
+            TopPanelPatch.correct = 0F;
+        }
+        CatFoodCupRacingMod.saves.setFloat("correctTime", TopPanelPatch.correct);
+        try {
+            CatFoodCupRacingMod.saves.save();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         return encounterMap;
     }
 

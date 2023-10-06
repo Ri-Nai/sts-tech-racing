@@ -2,6 +2,7 @@ package demoMod.cfcracing.patches.rngfix;
 
 import basemod.Pair;
 import com.badlogic.gdx.math.MathUtils;
+import com.evacipated.cardcrawl.modthespire.lib.SpireInsertPatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
 import com.megacrit.cardcrawl.cards.AbstractCard;
@@ -183,6 +184,24 @@ public class CardGroupPatch {
                     return SpireReturn.Return(tmp.get(MathUtils.random(tmp.size() - 1)));
                 }
             }
+        }
+    }
+
+    /**
+     * 使随机插入卡牌行为结果相似
+     */
+    @SpirePatch(
+            clz = CardGroup.class,
+            method = "addToRandomSpot"
+    )
+    static public class PatchAddToRandomSpot{
+        @SpireInsertPatch(rloc = 3)
+        static public SpireReturn<Void> Insert(CardGroup group,AbstractCard c){
+            int idx = (int) AbstractDungeon.cardRandomRng.random((float) group.group.size());
+            if(idx < 0) idx = 0;
+            if(idx > group.group.size() - 1) idx = group.group.size() - 1;
+            group.group.add(idx, c);
+            return SpireReturn.Return(null);
         }
     }
 }
