@@ -5,8 +5,6 @@ import com.megacrit.cardcrawl.blights.AbstractBlight;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.helpers.PowerTip;
 import com.megacrit.cardcrawl.localization.BlightStrings;
-import demoMod.cfcracing.CatFoodCupRacingMod;
-import demoMod.cfcracing.patches.SaveLoadCheck;
 
 public class SLoutBattle extends AbstractBlight {
     public static final String ID = "cfc:SLoutBattle";
@@ -23,12 +21,11 @@ public class SLoutBattle extends AbstractBlight {
         this.img = IMG;
         this.outlineImg = IMG_OUTLINE;
         this.increment = 0;
-        this.counter = 1;
-        updateDescription();
+        this.counter = -1;
     }
 
     public void updateDescription() {
-        this.description = String.format(DESCRIPTION[0], CatFoodCupRacingMod.maxSLTimes, SaveLoadCheck.outBattleSLCounter);
+        this.description = DESCRIPTION[0];
         this.tips.clear();
         this.tips.add(new PowerTip(this.name, this.description));
         initializeTips();

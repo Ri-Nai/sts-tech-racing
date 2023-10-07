@@ -95,11 +95,6 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-
-            SaveLoadCheck.inBattleSLCounter = 0;
-            SaveLoadCheck.outBattleSLCounter = 0;
-            saves.setInt("inBattleSLCounter", 0);
-            saves.setInt("outBattleSLCounter", 0);
         }
         purgeCardPool();
     }
@@ -457,7 +452,7 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
 
         settingsPanel.addUIElement(cardBanLabel);
         settingsPanel.addUIElement(defaultA15);
-        settingsPanel.addUIElement(maxSLTimesSlider);
+        //settingsPanel.addUIElement(maxSLTimesSlider);
         settingsPanel.addUIElement(heartBonusTimeLabel);
         settingsPanel.addUIElement(ironcladBonusSlider);
         settingsPanel.addUIElement(silentBonusSlider);
@@ -578,7 +573,6 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
             else if (c.type == AbstractCard.CardType.SKILL) cntS++;
             else if (c.type == AbstractCard.CardType.POWER) cntP++;
         }
-        if (cntA < 3 || cntS < 3 || cntP < 3) return false;//药水等
-        return true;
+        return cntA >= 3 && cntS >= 3 && cntP >= 3;//药水等
     }
 }
