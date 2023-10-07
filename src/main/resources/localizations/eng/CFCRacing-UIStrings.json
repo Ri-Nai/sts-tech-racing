@@ -4,7 +4,14 @@
       "Reset all card's status.",
       "Reset all color cards to enable state.",
       "#rWarning: Card pool is too shallow! NL ",
-      "Lock the ascension level to 15 in the character select screen."
+      "Lock the ascension level to 15 in the character select screen.",
+      "Card ban:",
+      "Max save&load times",
+      "Heart time bonus",
+      "Ironclad",
+      "The Silent",
+      "Defect",
+      "Watcher"
     ]
   }
 }

@@ -70,6 +70,7 @@ public class CardFilterModMenu implements TabBarListener, ScrollBarListener, IUI
     private AbstractCard controllerCard;
     private final ModPanel parent;
     private final Texture overlay_deprecated;
+    public static boolean hidden = true;
 
     public CardFilterModMenu(ModPanel parent) {
         this.grabbedScreen = false;
@@ -190,6 +191,9 @@ public class CardFilterModMenu implements TabBarListener, ScrollBarListener, IUI
     }
 
     public void update() {
+        if (hidden) {
+            return;
+        }
         updateControllerInput();
         if (Settings.isControllerMode && this.controllerCard != null && !CardCrawlGame.isPopupOpen) {
             if (Gdx.input.getY() > Settings.HEIGHT * 0.75F) {
@@ -228,10 +232,11 @@ public class CardFilterModMenu implements TabBarListener, ScrollBarListener, IUI
         }
         updateCards();
         this.button.update();
-        if (this.button.hb.clicked || InputHelper.pressedEscape) {
+        if (CardCrawlGame.cancelButton.hb.clicked || InputHelper.pressedEscape) {
             InputHelper.pressedEscape = false;
             this.button.hb.clicked = false;
             this.button.hide();
+            hidden = true;
             CardCrawlGame.mainMenuScreen.panelScreen.refresh();
         }
         if (Settings.isControllerMode && this.controllerCard != null) {
@@ -476,6 +481,9 @@ public class CardFilterModMenu implements TabBarListener, ScrollBarListener, IUI
 
     @Override
     public void render(SpriteBatch sb) {
+        if (hidden) {
+            return;
+        }
         FontHelper.cardEnergyFont_L.getData().setScale(1.5F);
         FontHelper.renderFontLeftTopAligned(sb, FontHelper.cardEnergyFont_L,
 

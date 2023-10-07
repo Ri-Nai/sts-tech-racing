@@ -1,12 +1,11 @@
 package demoMod.cfcracing;
 
-import basemod.BaseMod;
-import basemod.ModLabeledToggleButton;
-import basemod.ModPanel;
+import basemod.*;
 import basemod.interfaces.*;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireConfig;
 import com.evacipated.cardcrawl.modthespire.lib.SpireInitializer;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
@@ -16,6 +15,7 @@ import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.helpers.CardLibrary;
 import com.megacrit.cardcrawl.helpers.FontHelper;
+import com.megacrit.cardcrawl.helpers.Hitbox;
 import com.megacrit.cardcrawl.helpers.ImageMaster;
 import com.megacrit.cardcrawl.localization.BlightStrings;
 import com.megacrit.cardcrawl.localization.UIStrings;
@@ -26,6 +26,7 @@ import demoMod.cfcracing.patches.SaveLoadCheck;
 import demoMod.cfcracing.patches.TopPanelPatch;
 import demoMod.cfcracing.patches.rngfix.MonsterHelperPatch;
 import demoMod.cfcracing.ui.CardFilterModMenu;
+import demoMod.cfcracing.ui.CardFilterModMenuButton;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -46,6 +47,16 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
     public static ArrayList<AbstractGameAction> myActions = new ArrayList<>();
 
     public static boolean defaultA15Option = false;
+
+    public static int maxSLTimes = 1;
+
+    public static int ironcladBonus = 360;
+
+    public static int silentBonus = 420;
+
+    public static int defectBonus = 450;
+
+    public static int watcherBonus = 300;
 
     static {
         try {
@@ -84,6 +95,11 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+
+            SaveLoadCheck.inBattleSLCounter = 0;
+            SaveLoadCheck.outBattleSLCounter = 0;
+            saves.setInt("inBattleSLCounter", 0);
+            saves.setInt("outBattleSLCounter", 0);
         }
         purgeCardPool();
     }
@@ -195,11 +211,19 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
         }
         loadSettingsData();
         UIStrings uiStrings = CardCrawlGame.languagePack.getUIString("CardFilterModMenu");
-        CardFilterModMenu subMenu = new CardFilterModMenu(settingsPanel);
-        subMenu.initialize();
-        settingsPanel.addUIElement(subMenu);
-        ModLabeledToggleButton defaultA15 = new ModLabeledToggleButton(uiStrings.TEXT[3], 30.0F, 1025.0F, Color.WHITE, FontHelper.buttonLabelFont, defaultA15Option, settingsPanel, (me) -> {},
+        CardFilterModMenuButton subMenu = new CardFilterModMenuButton(525.0F, 612.0F, settingsPanel, button -> CardFilterModMenu.hidden = !CardFilterModMenu.hidden) {
+            @Override
+            public int renderLayer() {
+                return 99;
+            }
+        };
+        ModLabel cardBanLabel = new ModLabel(uiStrings.TEXT[4], 350.0F, 655.0F, settingsPanel, modLabel -> {});
+        ModLabeledToggleButton defaultA15 = new ModLabeledToggleButton(uiStrings.TEXT[3], 350.0F, 725.0F, Color.WHITE, FontHelper.buttonLabelFont, defaultA15Option, settingsPanel, (me) -> {},
                 (me) -> {
+                    if (!subMenu.menuHidden) {
+                        me.enabled = !me.enabled;
+                        return;
+                    }
                     defaultA15Option = me.enabled;
                     saves.setBool("defaultA15Option", defaultA15Option);
                     try {
@@ -209,7 +233,238 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
                     }
                 }
         );
+        ModSlider maxSLTimesSlider = new ModSlider(uiStrings.TEXT[5], 470.0F, 600.0F, 1.0F, "", settingsPanel, modSlider -> {
+            int newValue = Math.round(1.0F + modSlider.value * 4.0F);
+            if (newValue != maxSLTimes) {
+                maxSLTimes = newValue;
+                saves.setInt("maxSLTimes", maxSLTimes);
+                try {
+                    saves.save();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }) {
+            @Override
+            public void update() {
+                if (!subMenu.menuHidden) {
+                    return;
+                }
+                super.update();
+                this.value = 1.0F + this.value * 4.0F;
+            }
+        };
+        ModLabel heartBonusTimeLabel = new ModLabel(uiStrings.TEXT[6], 1100.0F, 655.0F, settingsPanel, modLabel -> {});
+        ModSlider ironcladBonusSlider = new ModSlider(uiStrings.TEXT[7], 1220.0F, 605.0F, 1500.0F, "s", settingsPanel, modSlider -> {
+            int t = Math.round(modSlider.value * modSlider.multiplier);
+            int newValue = t - (t % 10);
+            if (newValue != ironcladBonus) {
+                ironcladBonus = newValue;
+                saves.setInt("ironcladBonus", ironcladBonus);
+                try {
+                    saves.save();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }) {
+            @Override
+            public void update() {
+                if (!subMenu.menuHidden) {
+                    return;
+                }
+                super.update();
+                int t = Math.round(this.value * this.multiplier);
+                this.value = t - (t % 10);
+            }
+
+            @Override
+            public void render(SpriteBatch sb) {
+                float sliderX = ReflectionHacks.getPrivate(this, ModSlider.class, "sliderX");
+                float y = ReflectionHacks.getPrivate(this, ModSlider.class, "y");
+                float handleX = ReflectionHacks.getPrivate(this, ModSlider.class, "handleX");
+                String label = ReflectionHacks.getPrivate(this, ModSlider.class, "label");
+                String suffix = ReflectionHacks.getPrivate(this, ModSlider.class, "suffix");
+                boolean sliderGrabbed = ReflectionHacks.getPrivate(this, ModSlider.class, "sliderGrabbed");
+                Hitbox hb = ReflectionHacks.getPrivate(this, ModSlider.class, "hb");
+                Hitbox bgHb = ReflectionHacks.getPrivate(this, ModSlider.class, "bgHb");
+
+                sb.setColor(Color.WHITE);
+                sb.draw(ImageMaster.OPTION_SLIDER_BG, sliderX, y - 12.0F, 0.0F, 12.0F, 250.0F, 24.0F, Settings.scale, Settings.scale, 0.0F, 0, 0, 250, 24, false, false);
+                sb.draw(ImageMaster.OPTION_SLIDER, handleX - 22.0F, y - 22.0F, 22.0F, 22.0F, 44.0F, 44.0F, Settings.scale, Settings.scale, 0.0F, 0, 0, 44, 44, false, false);
+                FontHelper.renderFontCentered(sb, FontHelper.tipBodyFont, label, sliderX - 55.0F * Settings.scale, y, Color.WHITE);
+                String renderVal = Integer.toString((int) Math.floor(this.value));
+                if (sliderGrabbed) {
+                    FontHelper.renderFontCentered(sb, FontHelper.tipBodyFont, renderVal + suffix, sliderX + 230.0F * Settings.scale + 55.0F * Settings.scale, y, Settings.GREEN_TEXT_COLOR);
+                } else {
+                    FontHelper.renderFontCentered(sb, FontHelper.tipBodyFont, renderVal + suffix, sliderX + 230.0F * Settings.scale + 55.0F * Settings.scale, y, Settings.BLUE_TEXT_COLOR);
+                }
+
+                hb.render(sb);
+                bgHb.render(sb);
+            }
+        };
+
+        ModSlider silentBonusSlider = new ModSlider(uiStrings.TEXT[8], 1220.0F, 505.0F, 1500.0F, "s", settingsPanel, modSlider -> {
+            int t = Math.round(modSlider.value * modSlider.multiplier);
+            int newValue = t - (t % 10);
+            if (newValue != silentBonus) {
+                silentBonus = newValue;
+                saves.setInt("silentBonus", silentBonus);
+                try {
+                    saves.save();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }) {
+            @Override
+            public void update() {
+                if (!subMenu.menuHidden) {
+                    return;
+                }
+                super.update();
+                int t = Math.round(this.value * this.multiplier);
+                this.value = t - (t % 10);
+            }
+
+            @Override
+            public void render(SpriteBatch sb) {
+                float sliderX = ReflectionHacks.getPrivate(this, ModSlider.class, "sliderX");
+                float y = ReflectionHacks.getPrivate(this, ModSlider.class, "y");
+                float handleX = ReflectionHacks.getPrivate(this, ModSlider.class, "handleX");
+                String label = ReflectionHacks.getPrivate(this, ModSlider.class, "label");
+                String suffix = ReflectionHacks.getPrivate(this, ModSlider.class, "suffix");
+                boolean sliderGrabbed = ReflectionHacks.getPrivate(this, ModSlider.class, "sliderGrabbed");
+                Hitbox hb = ReflectionHacks.getPrivate(this, ModSlider.class, "hb");
+                Hitbox bgHb = ReflectionHacks.getPrivate(this, ModSlider.class, "bgHb");
+
+                sb.setColor(Color.WHITE);
+                sb.draw(ImageMaster.OPTION_SLIDER_BG, sliderX, y - 12.0F, 0.0F, 12.0F, 250.0F, 24.0F, Settings.scale, Settings.scale, 0.0F, 0, 0, 250, 24, false, false);
+                sb.draw(ImageMaster.OPTION_SLIDER, handleX - 22.0F, y - 22.0F, 22.0F, 22.0F, 44.0F, 44.0F, Settings.scale, Settings.scale, 0.0F, 0, 0, 44, 44, false, false);
+                FontHelper.renderFontCentered(sb, FontHelper.tipBodyFont, label, sliderX - 55.0F * Settings.scale, y, Color.WHITE);
+                String renderVal = Integer.toString((int) Math.floor(this.value));
+                if (sliderGrabbed) {
+                    FontHelper.renderFontCentered(sb, FontHelper.tipBodyFont, renderVal + suffix, sliderX + 230.0F * Settings.scale + 55.0F * Settings.scale, y, Settings.GREEN_TEXT_COLOR);
+                } else {
+                    FontHelper.renderFontCentered(sb, FontHelper.tipBodyFont, renderVal + suffix, sliderX + 230.0F * Settings.scale + 55.0F * Settings.scale, y, Settings.BLUE_TEXT_COLOR);
+                }
+
+                hb.render(sb);
+                bgHb.render(sb);
+            }
+        };
+
+        ModSlider defectBonusSlider = new ModSlider(uiStrings.TEXT[9], 1220.0F, 405.0F, 1500.0F, "s", settingsPanel, modSlider -> {
+            int t = Math.round(modSlider.value * modSlider.multiplier);
+            int newValue = t - (t % 10);
+            if (newValue != defectBonus) {
+                defectBonus = newValue;
+                saves.setInt("defectBonus", defectBonus);
+                try {
+                    saves.save();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }) {
+            @Override
+            public void update() {
+                if (!subMenu.menuHidden) {
+                    return;
+                }
+                super.update();
+                int t = Math.round(this.value * this.multiplier);
+                this.value = t - (t % 10);
+            }
+
+            @Override
+            public void render(SpriteBatch sb) {
+                float sliderX = ReflectionHacks.getPrivate(this, ModSlider.class, "sliderX");
+                float y = ReflectionHacks.getPrivate(this, ModSlider.class, "y");
+                float handleX = ReflectionHacks.getPrivate(this, ModSlider.class, "handleX");
+                String label = ReflectionHacks.getPrivate(this, ModSlider.class, "label");
+                String suffix = ReflectionHacks.getPrivate(this, ModSlider.class, "suffix");
+                boolean sliderGrabbed = ReflectionHacks.getPrivate(this, ModSlider.class, "sliderGrabbed");
+                Hitbox hb = ReflectionHacks.getPrivate(this, ModSlider.class, "hb");
+                Hitbox bgHb = ReflectionHacks.getPrivate(this, ModSlider.class, "bgHb");
+
+                sb.setColor(Color.WHITE);
+                sb.draw(ImageMaster.OPTION_SLIDER_BG, sliderX, y - 12.0F, 0.0F, 12.0F, 250.0F, 24.0F, Settings.scale, Settings.scale, 0.0F, 0, 0, 250, 24, false, false);
+                sb.draw(ImageMaster.OPTION_SLIDER, handleX - 22.0F, y - 22.0F, 22.0F, 22.0F, 44.0F, 44.0F, Settings.scale, Settings.scale, 0.0F, 0, 0, 44, 44, false, false);
+                FontHelper.renderFontCentered(sb, FontHelper.tipBodyFont, label, sliderX - 55.0F * Settings.scale, y, Color.WHITE);
+                String renderVal = Integer.toString((int) Math.floor(this.value));
+                if (sliderGrabbed) {
+                    FontHelper.renderFontCentered(sb, FontHelper.tipBodyFont, renderVal + suffix, sliderX + 230.0F * Settings.scale + 55.0F * Settings.scale, y, Settings.GREEN_TEXT_COLOR);
+                } else {
+                    FontHelper.renderFontCentered(sb, FontHelper.tipBodyFont, renderVal + suffix, sliderX + 230.0F * Settings.scale + 55.0F * Settings.scale, y, Settings.BLUE_TEXT_COLOR);
+                }
+
+                hb.render(sb);
+                bgHb.render(sb);
+            }
+        };
+
+        ModSlider watcherBonusSlider = new ModSlider(uiStrings.TEXT[10], 1220.0F, 305.0F, 1500.0F, "s", settingsPanel, modSlider -> {
+            int t = Math.round(modSlider.value * modSlider.multiplier);
+            float newValue = t - (t % 10);
+            if (newValue != watcherBonus) {
+                watcherBonus = (int) newValue;
+                saves.setInt("watcherBonus", watcherBonus);
+                try {
+                    saves.save();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }) {
+            @Override
+            public void update() {
+                if (!subMenu.menuHidden) {
+                    return;
+                }
+                super.update();
+                int t = Math.round(this.value * this.multiplier);
+                this.value = t - (t % 10);
+            }
+
+            @Override
+            public void render(SpriteBatch sb) {
+                float sliderX = ReflectionHacks.getPrivate(this, ModSlider.class, "sliderX");
+                float y = ReflectionHacks.getPrivate(this, ModSlider.class, "y");
+                float handleX = ReflectionHacks.getPrivate(this, ModSlider.class, "handleX");
+                String label = ReflectionHacks.getPrivate(this, ModSlider.class, "label");
+                String suffix = ReflectionHacks.getPrivate(this, ModSlider.class, "suffix");
+                boolean sliderGrabbed = ReflectionHacks.getPrivate(this, ModSlider.class, "sliderGrabbed");
+                Hitbox hb = ReflectionHacks.getPrivate(this, ModSlider.class, "hb");
+                Hitbox bgHb = ReflectionHacks.getPrivate(this, ModSlider.class, "bgHb");
+
+                sb.setColor(Color.WHITE);
+                sb.draw(ImageMaster.OPTION_SLIDER_BG, sliderX, y - 12.0F, 0.0F, 12.0F, 250.0F, 24.0F, Settings.scale, Settings.scale, 0.0F, 0, 0, 250, 24, false, false);
+                sb.draw(ImageMaster.OPTION_SLIDER, handleX - 22.0F, y - 22.0F, 22.0F, 22.0F, 44.0F, 44.0F, Settings.scale, Settings.scale, 0.0F, 0, 0, 44, 44, false, false);
+                FontHelper.renderFontCentered(sb, FontHelper.tipBodyFont, label, sliderX - 55.0F * Settings.scale, y, Color.WHITE);
+                String renderVal = Integer.toString((int) Math.floor(this.value));
+                if (sliderGrabbed) {
+                    FontHelper.renderFontCentered(sb, FontHelper.tipBodyFont, renderVal + suffix, sliderX + 230.0F * Settings.scale + 55.0F * Settings.scale, y, Settings.GREEN_TEXT_COLOR);
+                } else {
+                    FontHelper.renderFontCentered(sb, FontHelper.tipBodyFont, renderVal + suffix, sliderX + 230.0F * Settings.scale + 55.0F * Settings.scale, y, Settings.BLUE_TEXT_COLOR);
+                }
+
+                hb.render(sb);
+                bgHb.render(sb);
+            }
+        };
+
+        settingsPanel.addUIElement(cardBanLabel);
         settingsPanel.addUIElement(defaultA15);
+        settingsPanel.addUIElement(maxSLTimesSlider);
+        settingsPanel.addUIElement(heartBonusTimeLabel);
+        settingsPanel.addUIElement(ironcladBonusSlider);
+        settingsPanel.addUIElement(silentBonusSlider);
+        settingsPanel.addUIElement(defectBonusSlider);
+        settingsPanel.addUIElement(watcherBonusSlider);
+        settingsPanel.addUIElement(subMenu);
+
         Texture badgeTexture = ImageMaster.loadImage("cfcImages/ui/badge.png");
         BaseMod.registerModBadge(badgeTexture, "CFC Racing Mod", "Temple9", "todo", settingsPanel);
         BaseMod.addSaveField("cfc:SLCheck", new SaveLoadCheck());
@@ -217,6 +472,26 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
         if (saves.has("defaultA15Option")) {
             defaultA15Option = saves.getBool("defaultA15Option");
         }
+        if (saves.has("maxSLTimes")) {
+            maxSLTimes = saves.getInt("maxSLTimes");
+        }
+        maxSLTimesSlider.setValue((maxSLTimes - 1.0F) / 4.0F);
+        if (saves.has("ironcladBonus")) {
+            ironcladBonus = saves.getInt("ironcladBonus");
+        }
+        ironcladBonusSlider.setValue(ironcladBonus / 1500.0F);
+        if (saves.has("silentBonus")) {
+            silentBonus = saves.getInt("silentBonus");
+        }
+        silentBonusSlider.setValue(silentBonus / 1500.0F);
+        if (saves.has("defectBonus")) {
+            defectBonus = saves.getInt("defectBonus");
+        }
+        defectBonusSlider.setValue(defectBonus / 1500.0F);
+        if (saves.has("watcherBonus")) {
+            watcherBonus = saves.getInt("watcherBonus");
+        }
+        watcherBonusSlider.setValue(watcherBonus / 1500.0F);
     }
 
     @Override
@@ -238,6 +513,9 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
         if (!myActions.isEmpty()) {
             myActions.get(0).update();
             if (myActions.get(0).isDone) myActions.remove(0);
+        }
+        if (!BaseMod.modSettingsUp) {
+            CardFilterModMenu.hidden = true;
         }
     }
 

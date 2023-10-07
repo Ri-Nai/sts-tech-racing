@@ -120,13 +120,13 @@ public class TopPanelPatch {
         static public void Prefix(DoorUnlockScreen doorUnlockScreen, boolean eventVersion) {
             if (eventVersion) {
                 if (AbstractDungeon.player.chosenClass == AbstractPlayer.PlayerClass.IRONCLAD) {
-                    correct = 360.0F;
+                    correct = (float) CatFoodCupRacingMod.ironcladBonus;
                 } else if (AbstractDungeon.player.chosenClass == AbstractPlayer.PlayerClass.THE_SILENT) {
-                    correct = 420.0F;
+                    correct = (float) CatFoodCupRacingMod.silentBonus;
                 } else if (AbstractDungeon.player.chosenClass == AbstractPlayer.PlayerClass.DEFECT) {
-                    correct = 450.0F;
+                    correct = (float) CatFoodCupRacingMod.defectBonus;
                 } else {
-                    correct = 300.0F;
+                    correct = (float) CatFoodCupRacingMod.watcherBonus;
                 }
                 CatFoodCupRacingMod.saves.setFloat("correctTime", correct);
                 try {
