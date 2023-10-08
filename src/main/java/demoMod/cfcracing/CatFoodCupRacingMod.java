@@ -250,9 +250,6 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
         };
         ModLabel heartBonusTimeLabel = new ModLabel(uiStrings.TEXT[6], 1100.0F, 655.0F, settingsPanel, modLabel -> {});
         IntSlider ironcladBonusSlider = new IntSlider(uiStrings.TEXT[7], 1220.0F, 605.0F, 0, 900, 10, "s", settingsPanel, value -> {
-            if (!subMenu.menuHidden) {
-                return;
-            }
             ironcladBonus = value;
             saves.setInt("ironcladBonus", ironcladBonus);
             try {
@@ -260,11 +257,16 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        });
-        IntSlider silentBonusSlider = new IntSlider(uiStrings.TEXT[8], 1220.0F, 505.0F, 0, 900, 10, "s", settingsPanel, value -> {
-            if (!subMenu.menuHidden) {
-                return;
+        }) {
+            @Override
+            public void update() {
+                if (!subMenu.menuHidden) {
+                    return;
+                }
+                super.update();
             }
+        };
+        IntSlider silentBonusSlider = new IntSlider(uiStrings.TEXT[8], 1220.0F, 505.0F, 0, 900, 10, "s", settingsPanel, value -> {
             silentBonus = value;
             saves.setInt("silentBonus", silentBonus);
             try {
@@ -272,11 +274,16 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        });
-        IntSlider defectBonusSlider = new IntSlider(uiStrings.TEXT[9], 1220.0F, 405.0F, 0, 900, 10, "s", settingsPanel, value -> {
-            if (!subMenu.menuHidden) {
-                return;
+        }) {
+            @Override
+            public void update() {
+                if (!subMenu.menuHidden) {
+                    return;
+                }
+                super.update();
             }
+        };
+        IntSlider defectBonusSlider = new IntSlider(uiStrings.TEXT[9], 1220.0F, 405.0F, 0, 900, 10, "s", settingsPanel, value -> {
             defectBonus = value;
             saves.setInt("defectBonus", defectBonus);
             try {
@@ -284,11 +291,16 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        });
-        IntSlider watcherBonusSlider = new IntSlider(uiStrings.TEXT[10], 1220.0F, 305.0F, 0, 900, 10, "s", settingsPanel, value -> {
-            if (!subMenu.menuHidden) {
-                return;
+        }) {
+            @Override
+            public void update() {
+                if (!subMenu.menuHidden) {
+                    return;
+                }
+                super.update();
             }
+        };
+        IntSlider watcherBonusSlider = new IntSlider(uiStrings.TEXT[10], 1220.0F, 305.0F, 0, 900, 10, "s", settingsPanel, value -> {
             watcherBonus = value;
             saves.setInt("watcherBonus", watcherBonus);
             try {
@@ -296,7 +308,15 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        });
+        }) {
+            @Override
+            public void update() {
+                if (!subMenu.menuHidden) {
+                    return;
+                }
+                super.update();
+            }
+        };
         settingsPanel.addUIElement(cardBanLabel);
         settingsPanel.addUIElement(defaultA15);
         //settingsPanel.addUIElement(maxSLTimesSlider);
