@@ -5,7 +5,6 @@ import basemod.interfaces.*;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireConfig;
 import com.evacipated.cardcrawl.modthespire.lib.SpireInitializer;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
@@ -15,7 +14,6 @@ import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.helpers.CardLibrary;
 import com.megacrit.cardcrawl.helpers.FontHelper;
-import com.megacrit.cardcrawl.helpers.Hitbox;
 import com.megacrit.cardcrawl.helpers.ImageMaster;
 import com.megacrit.cardcrawl.localization.BlightStrings;
 import com.megacrit.cardcrawl.localization.UIStrings;
@@ -27,6 +25,7 @@ import demoMod.cfcracing.patches.TopPanelPatch;
 import demoMod.cfcracing.patches.rngfix.MonsterHelperPatch;
 import demoMod.cfcracing.ui.CardFilterModMenu;
 import demoMod.cfcracing.ui.CardFilterModMenuButton;
+import demoMod.cfcracing.ui.IntSlider;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -250,206 +249,54 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
             }
         };
         ModLabel heartBonusTimeLabel = new ModLabel(uiStrings.TEXT[6], 1100.0F, 655.0F, settingsPanel, modLabel -> {});
-        ModSlider ironcladBonusSlider = new ModSlider(uiStrings.TEXT[7], 1220.0F, 605.0F, 1500.0F, "s", settingsPanel, modSlider -> {
-            int t = Math.round(modSlider.value * modSlider.multiplier);
-            int newValue = t - (t % 10);
-            if (newValue != ironcladBonus) {
-                ironcladBonus = newValue;
-                saves.setInt("ironcladBonus", ironcladBonus);
-                try {
-                    saves.save();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+        IntSlider ironcladBonusSlider = new IntSlider(uiStrings.TEXT[7], 1220.0F, 605.0F, 0, 900, 10, "s", settingsPanel, value -> {
+            if (!subMenu.menuHidden) {
+                return;
             }
-        }) {
-            @Override
-            public void update() {
-                if (!subMenu.menuHidden) {
-                    return;
-                }
-                super.update();
-                int t = Math.round(this.value * this.multiplier);
-                this.value = t - (t % 10);
+            ironcladBonus = value;
+            saves.setInt("ironcladBonus", ironcladBonus);
+            try {
+                saves.save();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-
-            @Override
-            public void render(SpriteBatch sb) {
-                float sliderX = ReflectionHacks.getPrivate(this, ModSlider.class, "sliderX");
-                float y = ReflectionHacks.getPrivate(this, ModSlider.class, "y");
-                float handleX = ReflectionHacks.getPrivate(this, ModSlider.class, "handleX");
-                String label = ReflectionHacks.getPrivate(this, ModSlider.class, "label");
-                String suffix = ReflectionHacks.getPrivate(this, ModSlider.class, "suffix");
-                boolean sliderGrabbed = ReflectionHacks.getPrivate(this, ModSlider.class, "sliderGrabbed");
-                Hitbox hb = ReflectionHacks.getPrivate(this, ModSlider.class, "hb");
-                Hitbox bgHb = ReflectionHacks.getPrivate(this, ModSlider.class, "bgHb");
-
-                sb.setColor(Color.WHITE);
-                sb.draw(ImageMaster.OPTION_SLIDER_BG, sliderX, y - 12.0F, 0.0F, 12.0F, 250.0F, 24.0F, Settings.scale, Settings.scale, 0.0F, 0, 0, 250, 24, false, false);
-                sb.draw(ImageMaster.OPTION_SLIDER, handleX - 22.0F, y - 22.0F, 22.0F, 22.0F, 44.0F, 44.0F, Settings.scale, Settings.scale, 0.0F, 0, 0, 44, 44, false, false);
-                FontHelper.renderFontCentered(sb, FontHelper.tipBodyFont, label, sliderX - 55.0F * Settings.scale, y, Color.WHITE);
-                String renderVal = Integer.toString((int) Math.floor(this.value));
-                if (sliderGrabbed) {
-                    FontHelper.renderFontCentered(sb, FontHelper.tipBodyFont, renderVal + suffix, sliderX + 230.0F * Settings.scale + 55.0F * Settings.scale, y, Settings.GREEN_TEXT_COLOR);
-                } else {
-                    FontHelper.renderFontCentered(sb, FontHelper.tipBodyFont, renderVal + suffix, sliderX + 230.0F * Settings.scale + 55.0F * Settings.scale, y, Settings.BLUE_TEXT_COLOR);
-                }
-
-                hb.render(sb);
-                bgHb.render(sb);
+        });
+        IntSlider silentBonusSlider = new IntSlider(uiStrings.TEXT[8], 1220.0F, 505.0F, 0, 900, 10, "s", settingsPanel, value -> {
+            if (!subMenu.menuHidden) {
+                return;
             }
-        };
-
-        ModSlider silentBonusSlider = new ModSlider(uiStrings.TEXT[8], 1220.0F, 505.0F, 1500.0F, "s", settingsPanel, modSlider -> {
-            int t = Math.round(modSlider.value * modSlider.multiplier);
-            int newValue = t - (t % 10);
-            if (newValue != silentBonus) {
-                silentBonus = newValue;
-                saves.setInt("silentBonus", silentBonus);
-                try {
-                    saves.save();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+            silentBonus = value;
+            saves.setInt("silentBonus", silentBonus);
+            try {
+                saves.save();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        }) {
-            @Override
-            public void update() {
-                if (!subMenu.menuHidden) {
-                    return;
-                }
-                super.update();
-                int t = Math.round(this.value * this.multiplier);
-                this.value = t - (t % 10);
+        });
+        IntSlider defectBonusSlider = new IntSlider(uiStrings.TEXT[9], 1220.0F, 405.0F, 0, 900, 10, "s", settingsPanel, value -> {
+            if (!subMenu.menuHidden) {
+                return;
             }
-
-            @Override
-            public void render(SpriteBatch sb) {
-                float sliderX = ReflectionHacks.getPrivate(this, ModSlider.class, "sliderX");
-                float y = ReflectionHacks.getPrivate(this, ModSlider.class, "y");
-                float handleX = ReflectionHacks.getPrivate(this, ModSlider.class, "handleX");
-                String label = ReflectionHacks.getPrivate(this, ModSlider.class, "label");
-                String suffix = ReflectionHacks.getPrivate(this, ModSlider.class, "suffix");
-                boolean sliderGrabbed = ReflectionHacks.getPrivate(this, ModSlider.class, "sliderGrabbed");
-                Hitbox hb = ReflectionHacks.getPrivate(this, ModSlider.class, "hb");
-                Hitbox bgHb = ReflectionHacks.getPrivate(this, ModSlider.class, "bgHb");
-
-                sb.setColor(Color.WHITE);
-                sb.draw(ImageMaster.OPTION_SLIDER_BG, sliderX, y - 12.0F, 0.0F, 12.0F, 250.0F, 24.0F, Settings.scale, Settings.scale, 0.0F, 0, 0, 250, 24, false, false);
-                sb.draw(ImageMaster.OPTION_SLIDER, handleX - 22.0F, y - 22.0F, 22.0F, 22.0F, 44.0F, 44.0F, Settings.scale, Settings.scale, 0.0F, 0, 0, 44, 44, false, false);
-                FontHelper.renderFontCentered(sb, FontHelper.tipBodyFont, label, sliderX - 55.0F * Settings.scale, y, Color.WHITE);
-                String renderVal = Integer.toString((int) Math.floor(this.value));
-                if (sliderGrabbed) {
-                    FontHelper.renderFontCentered(sb, FontHelper.tipBodyFont, renderVal + suffix, sliderX + 230.0F * Settings.scale + 55.0F * Settings.scale, y, Settings.GREEN_TEXT_COLOR);
-                } else {
-                    FontHelper.renderFontCentered(sb, FontHelper.tipBodyFont, renderVal + suffix, sliderX + 230.0F * Settings.scale + 55.0F * Settings.scale, y, Settings.BLUE_TEXT_COLOR);
-                }
-
-                hb.render(sb);
-                bgHb.render(sb);
+            defectBonus = value;
+            saves.setInt("defectBonus", defectBonus);
+            try {
+                saves.save();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        };
-
-        ModSlider defectBonusSlider = new ModSlider(uiStrings.TEXT[9], 1220.0F, 405.0F, 1500.0F, "s", settingsPanel, modSlider -> {
-            int t = Math.round(modSlider.value * modSlider.multiplier);
-            int newValue = t - (t % 10);
-            if (newValue != defectBonus) {
-                defectBonus = newValue;
-                saves.setInt("defectBonus", defectBonus);
-                try {
-                    saves.save();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+        });
+        IntSlider watcherBonusSlider = new IntSlider(uiStrings.TEXT[10], 1220.0F, 305.0F, 0, 900, 10, "s", settingsPanel, value -> {
+            if (!subMenu.menuHidden) {
+                return;
             }
-        }) {
-            @Override
-            public void update() {
-                if (!subMenu.menuHidden) {
-                    return;
-                }
-                super.update();
-                int t = Math.round(this.value * this.multiplier);
-                this.value = t - (t % 10);
+            watcherBonus = value;
+            saves.setInt("watcherBonus", watcherBonus);
+            try {
+                saves.save();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-
-            @Override
-            public void render(SpriteBatch sb) {
-                float sliderX = ReflectionHacks.getPrivate(this, ModSlider.class, "sliderX");
-                float y = ReflectionHacks.getPrivate(this, ModSlider.class, "y");
-                float handleX = ReflectionHacks.getPrivate(this, ModSlider.class, "handleX");
-                String label = ReflectionHacks.getPrivate(this, ModSlider.class, "label");
-                String suffix = ReflectionHacks.getPrivate(this, ModSlider.class, "suffix");
-                boolean sliderGrabbed = ReflectionHacks.getPrivate(this, ModSlider.class, "sliderGrabbed");
-                Hitbox hb = ReflectionHacks.getPrivate(this, ModSlider.class, "hb");
-                Hitbox bgHb = ReflectionHacks.getPrivate(this, ModSlider.class, "bgHb");
-
-                sb.setColor(Color.WHITE);
-                sb.draw(ImageMaster.OPTION_SLIDER_BG, sliderX, y - 12.0F, 0.0F, 12.0F, 250.0F, 24.0F, Settings.scale, Settings.scale, 0.0F, 0, 0, 250, 24, false, false);
-                sb.draw(ImageMaster.OPTION_SLIDER, handleX - 22.0F, y - 22.0F, 22.0F, 22.0F, 44.0F, 44.0F, Settings.scale, Settings.scale, 0.0F, 0, 0, 44, 44, false, false);
-                FontHelper.renderFontCentered(sb, FontHelper.tipBodyFont, label, sliderX - 55.0F * Settings.scale, y, Color.WHITE);
-                String renderVal = Integer.toString((int) Math.floor(this.value));
-                if (sliderGrabbed) {
-                    FontHelper.renderFontCentered(sb, FontHelper.tipBodyFont, renderVal + suffix, sliderX + 230.0F * Settings.scale + 55.0F * Settings.scale, y, Settings.GREEN_TEXT_COLOR);
-                } else {
-                    FontHelper.renderFontCentered(sb, FontHelper.tipBodyFont, renderVal + suffix, sliderX + 230.0F * Settings.scale + 55.0F * Settings.scale, y, Settings.BLUE_TEXT_COLOR);
-                }
-
-                hb.render(sb);
-                bgHb.render(sb);
-            }
-        };
-
-        ModSlider watcherBonusSlider = new ModSlider(uiStrings.TEXT[10], 1220.0F, 305.0F, 1500.0F, "s", settingsPanel, modSlider -> {
-            int t = Math.round(modSlider.value * modSlider.multiplier);
-            float newValue = t - (t % 10);
-            if (newValue != watcherBonus) {
-                watcherBonus = (int) newValue;
-                saves.setInt("watcherBonus", watcherBonus);
-                try {
-                    saves.save();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }) {
-            @Override
-            public void update() {
-                if (!subMenu.menuHidden) {
-                    return;
-                }
-                super.update();
-                int t = Math.round(this.value * this.multiplier);
-                this.value = t - (t % 10);
-            }
-
-            @Override
-            public void render(SpriteBatch sb) {
-                float sliderX = ReflectionHacks.getPrivate(this, ModSlider.class, "sliderX");
-                float y = ReflectionHacks.getPrivate(this, ModSlider.class, "y");
-                float handleX = ReflectionHacks.getPrivate(this, ModSlider.class, "handleX");
-                String label = ReflectionHacks.getPrivate(this, ModSlider.class, "label");
-                String suffix = ReflectionHacks.getPrivate(this, ModSlider.class, "suffix");
-                boolean sliderGrabbed = ReflectionHacks.getPrivate(this, ModSlider.class, "sliderGrabbed");
-                Hitbox hb = ReflectionHacks.getPrivate(this, ModSlider.class, "hb");
-                Hitbox bgHb = ReflectionHacks.getPrivate(this, ModSlider.class, "bgHb");
-
-                sb.setColor(Color.WHITE);
-                sb.draw(ImageMaster.OPTION_SLIDER_BG, sliderX, y - 12.0F, 0.0F, 12.0F, 250.0F, 24.0F, Settings.scale, Settings.scale, 0.0F, 0, 0, 250, 24, false, false);
-                sb.draw(ImageMaster.OPTION_SLIDER, handleX - 22.0F, y - 22.0F, 22.0F, 22.0F, 44.0F, 44.0F, Settings.scale, Settings.scale, 0.0F, 0, 0, 44, 44, false, false);
-                FontHelper.renderFontCentered(sb, FontHelper.tipBodyFont, label, sliderX - 55.0F * Settings.scale, y, Color.WHITE);
-                String renderVal = Integer.toString((int) Math.floor(this.value));
-                if (sliderGrabbed) {
-                    FontHelper.renderFontCentered(sb, FontHelper.tipBodyFont, renderVal + suffix, sliderX + 230.0F * Settings.scale + 55.0F * Settings.scale, y, Settings.GREEN_TEXT_COLOR);
-                } else {
-                    FontHelper.renderFontCentered(sb, FontHelper.tipBodyFont, renderVal + suffix, sliderX + 230.0F * Settings.scale + 55.0F * Settings.scale, y, Settings.BLUE_TEXT_COLOR);
-                }
-
-                hb.render(sb);
-                bgHb.render(sb);
-            }
-        };
-
+        });
         settingsPanel.addUIElement(cardBanLabel);
         settingsPanel.addUIElement(defaultA15);
         //settingsPanel.addUIElement(maxSLTimesSlider);
@@ -474,19 +321,19 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
         if (saves.has("ironcladBonus")) {
             ironcladBonus = saves.getInt("ironcladBonus");
         }
-        ironcladBonusSlider.setValue(ironcladBonus / 1500.0F);
+        ironcladBonusSlider.setValue(ironcladBonus);
         if (saves.has("silentBonus")) {
             silentBonus = saves.getInt("silentBonus");
         }
-        silentBonusSlider.setValue(silentBonus / 1500.0F);
+        silentBonusSlider.setValue(silentBonus);
         if (saves.has("defectBonus")) {
             defectBonus = saves.getInt("defectBonus");
         }
-        defectBonusSlider.setValue(defectBonus / 1500.0F);
+        defectBonusSlider.setValue(defectBonus);
         if (saves.has("watcherBonus")) {
             watcherBonus = saves.getInt("watcherBonus");
         }
-        watcherBonusSlider.setValue(watcherBonus / 1500.0F);
+        watcherBonusSlider.setValue(watcherBonus);
     }
 
     @Override
