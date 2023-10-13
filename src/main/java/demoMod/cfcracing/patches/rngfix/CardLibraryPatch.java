@@ -1,16 +1,20 @@
 package demoMod.cfcracing.patches.rngfix;
 
+import basemod.ReflectionHacks;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
 import com.megacrit.cardcrawl.cards.AbstractCard;
+import com.megacrit.cardcrawl.cards.curses.AscendersBane;
+import com.megacrit.cardcrawl.cards.curses.CurseOfTheBell;
+import com.megacrit.cardcrawl.cards.curses.Necronomicurse;
+import com.megacrit.cardcrawl.cards.curses.Pride;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.helpers.CardLibrary;
+import com.megacrit.cardcrawl.rooms.TreasureRoom;
 import com.megacrit.cardcrawl.unlock.UnlockTracker;
 import demoMod.cfcracing.CatFoodCupRacingMod;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class CardLibraryPatch {
@@ -57,6 +61,26 @@ public class CardLibraryPatch {
                             && !CatFoodCupRacingMod.isDisabled(card)).collect(Collectors.toList());
             Collections.shuffle(cards, new Random(AbstractDungeon.cardRng.randomLong()));
             return SpireReturn.Return(cards.get(0));
+        }
+    }
+
+    @SpirePatch(
+            clz = CardLibrary.class,
+            method = "getCurse",
+            paramtypez = {}
+    )
+    public static class PatchGetCurse {
+        public static SpireReturn<AbstractCard> Prefix() {
+            if (!(AbstractDungeon.getCurrRoom() instanceof TreasureRoom)) {
+                return SpireReturn.Continue();
+            }
+            ArrayList<String> tmp = new ArrayList<>();
+            for (Map.Entry<String, AbstractCard> stringAbstractCardEntry : ((HashMap<String, AbstractCard>) ReflectionHacks.getPrivateStatic(CardLibrary.class, "curses")).entrySet()) {
+                if (!stringAbstractCardEntry.getValue().cardID.equals(AscendersBane.ID) && !stringAbstractCardEntry.getValue().cardID.equals(Necronomicurse.ID) && !stringAbstractCardEntry.getValue().cardID.equals(CurseOfTheBell.ID) && !stringAbstractCardEntry.getValue().cardID.equals(Pride.ID)) {
+                    tmp.add(stringAbstractCardEntry.getKey());
+                }
+            }
+            return SpireReturn.Return(CardLibrary.cards.get(tmp.get(AbstractDungeon.miscRng.random(0, tmp.size() - 1))));
         }
     }
 }
