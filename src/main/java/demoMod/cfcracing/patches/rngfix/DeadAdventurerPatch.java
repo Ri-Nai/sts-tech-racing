@@ -12,7 +12,7 @@ public class DeadAdventurerPatch {
             method = SpirePatch.CONSTRUCTOR
     )
     public static class PatchConstructor {
-        public static void Postfix(DeadAdventurer event) {
+        public static void Prefix(DeadAdventurer event) {
             AbstractDungeon.miscRng = new Random(Settings.seed + 23336970L);
         }
     }
