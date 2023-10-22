@@ -1,15 +1,13 @@
 package demoMod.cfcracing.patches.rngfix;
 
-import com.evacipated.cardcrawl.modthespire.lib.ByRef;
-import com.evacipated.cardcrawl.modthespire.lib.SpireInsertPatch;
-import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
-import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
+import com.evacipated.cardcrawl.modthespire.lib.*;
 import com.google.gson.reflect.TypeToken;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.cards.curses.AscendersBane;
 import com.megacrit.cardcrawl.cards.curses.CurseOfTheBell;
 import com.megacrit.cardcrawl.cards.curses.Necronomicurse;
 import com.megacrit.cardcrawl.cards.curses.Pride;
+import com.megacrit.cardcrawl.characters.AbstractPlayer;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
@@ -33,6 +31,9 @@ import com.megacrit.cardcrawl.saveAndContinue.SaveFile;
 import com.megacrit.cardcrawl.vfx.AbstractGameEffect;
 import com.megacrit.cardcrawl.vfx.cardManip.ShowCardAndObtainEffect;
 import demoMod.cfcracing.CatFoodCupRacingMod;
+import javassist.CannotCompileException;
+import javassist.expr.ExprEditor;
+import javassist.expr.MethodCall;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -78,7 +79,7 @@ public class AbstractDungeonPatch {
         static {
             condition.put(DeadAdventurer.ID, () -> AbstractDungeon.floorNum > 6);
             condition.put(Mushrooms.ID, () -> AbstractDungeon.floorNum > 6);
-            condition.put(MoaiHead.ID, () -> AbstractDungeon.player.hasRelic("Golden Idol") ||  AbstractDungeon.player.isBloodied);
+            condition.put(MoaiHead.ID, () -> AbstractDungeon.player.hasRelic("Golden Idol") || AbstractDungeon.player.isBloodied);
             condition.put(Cleric.ID, () -> AbstractDungeon.player.gold >= 35);
             condition.put(Beggar.ID, () -> AbstractDungeon.player.gold >= 75);
             condition.put(Colosseum.ID, () -> AbstractDungeon.currMapNode != null && AbstractDungeon.currMapNode.y > AbstractDungeon.map.size() / 2);
@@ -151,7 +152,7 @@ public class AbstractDungeonPatch {
         }
 
         private static void addCardsToTmpPool(List<AbstractCard> tmpPool, List<AbstractCard> cardsToAdd, AbstractCard cardToTransform) {
-            for (int i=0;i<cardsToAdd.size();i++) {
+            for (int i = 0; i < cardsToAdd.size(); i++) {
                 AbstractCard card = cardsToAdd.get(i);
                 if (!card.cardID.equals(cardToTransform.cardID)) {
                     tmpPool.add(card);
@@ -275,7 +276,7 @@ public class AbstractDungeonPatch {
     )
     public static class PatchDungeonTransitionSetup {
         public static void Prefix() {
-            if(AbstractDungeon.actNum > 0)
+            if (AbstractDungeon.actNum > 0)
                 AbstractDungeon.eventRng.setCounter(AbstractDungeon.actNum * 200);
         }
     }
@@ -287,8 +288,36 @@ public class AbstractDungeonPatch {
     public static class PatchLoadSave {
         public static void Postfix(AbstractDungeon dungeon, SaveFile saveFile) {
             if (CatFoodCupRacingMod.saves.has("shrines")) {
-                AbstractDungeon.shrineList = SaveFilePatch.gson.fromJson(CatFoodCupRacingMod.saves.getString("shrines"), new TypeToken<ArrayList<String>>(){}.getType());
+                AbstractDungeon.shrineList = SaveFilePatch.gson.fromJson(CatFoodCupRacingMod.saves.getString("shrines"), new TypeToken<ArrayList<String>>() {
+                }.getType());
             }
+        }
+    }
+
+    @SpirePatch(
+            clz = AbstractDungeon.class,
+            method = SpirePatch.CONSTRUCTOR,
+            paramtypez = {
+                    String.class,
+                    AbstractPlayer.class,
+                    SaveFile.class
+            }
+    )
+    public static class PatchConstructor {
+        @SpireInstrumentPatch
+        public static ExprEditor Instrument() {
+            return new ExprEditor() {
+                @Override
+                public void edit(MethodCall m) throws CannotCompileException {
+                    if (isMethodCalled(m)) {
+                        m.replace("{}");
+                    }
+                }
+
+                private boolean isMethodCalled(MethodCall m) {
+                    return "initializeShrineList".equals(m.getMethodName());
+                }
+            };
         }
     }
 }
