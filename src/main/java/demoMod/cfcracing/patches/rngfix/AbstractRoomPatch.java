@@ -42,7 +42,7 @@ public class AbstractRoomPatch {
                 public void edit(MethodCall m) throws CannotCompileException{
                     if("addGoldToRewards".equals(m.getMethodName())){
                         if(cnt == 0){
-                            m.replace("{if("+AbstractRoomPatch.PatchUpdate.class.getName()+".check()){$1=75};$_=$proceed($$);}");
+                            m.replace("{if("+AbstractRoomPatch.PatchUpdate.class.getName()+".check()){$1=75;}$_=$proceed($$);}");
                         }
                         cnt++;
                     }
@@ -51,7 +51,7 @@ public class AbstractRoomPatch {
 
         }
         public static boolean check(){
-            return !isDailyRun;
+            return AbstractDungeon.ascensionLevel >= 13 && !isDailyRun;
         }
 
         @SpireInsertPatch(locator = Locator.class)
