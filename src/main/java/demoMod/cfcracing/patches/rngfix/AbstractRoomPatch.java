@@ -6,7 +6,10 @@ import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.helpers.ModHelper;
 import com.megacrit.cardcrawl.rewards.RewardItem;
 import com.megacrit.cardcrawl.rooms.*;
+import javassist.CannotCompileException;
 import javassist.CtBehavior;
+import javassist.expr.ExprEditor;
+import javassist.expr.MethodCall;
 
 import java.util.ArrayList;
 
@@ -29,6 +32,26 @@ public class AbstractRoomPatch {
 
         public static void Postfix(AbstractRoom room) {
             Settings.isDailyRun = isDailyRun;
+        }
+
+        @SpireInstrumentPatch
+        public static ExprEditor Instrument() {
+            return new ExprEditor() {
+                int cnt = 0;
+                @Override
+                public void edit(MethodCall m) throws CannotCompileException{
+                    if("addGoldToRewards".equals(m.getMethodName())){
+                        if(cnt == 0){
+                            m.replace("{if("+AbstractRoomPatch.PatchUpdate.class.getName()+".check()){$1=75};$_=$proceed($$);}");
+                        }
+                        cnt++;
+                    }
+                }
+            };
+
+        }
+        public static boolean check(){
+            return !isDailyRun;
         }
 
         @SpireInsertPatch(locator = Locator.class)
