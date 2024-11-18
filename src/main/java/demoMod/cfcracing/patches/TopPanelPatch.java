@@ -1,5 +1,6 @@
 package demoMod.cfcracing.patches;
 
+import basemod.ReflectionHacks;
 import basemod.patches.com.megacrit.cardcrawl.ui.panels.TopPanel.TopPanelPatches;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -11,8 +12,13 @@ import com.megacrit.cardcrawl.characters.AbstractPlayer;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
+import com.megacrit.cardcrawl.helpers.EventHelper;
 import com.megacrit.cardcrawl.helpers.FontHelper;
+import com.megacrit.cardcrawl.helpers.SaveHelper;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
+import com.megacrit.cardcrawl.rooms.AbstractRoom;
+import com.megacrit.cardcrawl.rooms.EventRoom;
+import com.megacrit.cardcrawl.saveAndContinue.SaveFile;
 import com.megacrit.cardcrawl.screens.DeathScreen;
 import com.megacrit.cardcrawl.screens.DoorUnlockScreen;
 import com.megacrit.cardcrawl.screens.VictoryScreen;
@@ -27,6 +33,7 @@ import javassist.expr.ExprEditor;
 import javassist.expr.MethodCall;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import static java.lang.Math.min;
 
@@ -171,6 +178,20 @@ public class TopPanelPatch {
             effect.isDone = true;
             AbstractDungeon.topLevelEffects.add(new SpeechTextEffect(1600.0F * Settings.scale, Settings.HEIGHT - 74.0F * Settings.scale, 2.0F, GameSavedEffect.TEXT[0], DialogWord.AppearEffect.FADE_IN));
             return SpireReturn.Return(null);
+        }
+    }
+    @SpirePatch(
+            clz = SaveHelper.class,
+            method = "saveIfAppropriate"
+    )
+    static public class PatchSaveIfAppropriate{//强制同步sfpc和chances
+        static public void Prefix(SaveFile.SaveType saveType){
+            if(AbstractDungeon.nextRoom == null) return;
+            if(AbstractDungeon.nextRoom.room == null) return;
+            if(SaveHelper.shouldSave() && saveType == SaveFile.SaveType.ENTER_ROOM){
+                if(AbstractDungeon.nextRoom.room instanceof EventRoom) return;//进入事件房间时不这么干，防止事件战斗后sl累积概率
+                ReflectionHacks.setPrivateStatic(EventHelper.class, "saveFilePreviousChances", null);
+            }
         }
     }
 
