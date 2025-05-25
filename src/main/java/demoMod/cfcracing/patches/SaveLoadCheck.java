@@ -56,12 +56,12 @@ public class SaveLoadCheck implements CustomSavable<Integer> {
                                 sloutBattle.instantObtain(AbstractDungeon.player, AbstractDungeon.player.blights.size(), true);
                             }
                         }
+                        CatFoodCupRacingMod.saves.setString("lastStartTime", Long.toString(System.currentTimeMillis()));
                     }
                 });
                 isDone = true;
             }
         });
-        CatFoodCupRacingMod.saves.setString("lastStartTime", Long.toString(System.currentTimeMillis()));
     }
 
     @SpirePatch(clz = BlightHelper.class, method = "getBlight")
