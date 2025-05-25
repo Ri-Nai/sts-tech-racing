@@ -7,19 +7,32 @@ import com.evacipated.cardcrawl.modthespire.lib.SpirePostfixPatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
 import com.megacrit.cardcrawl.blights.AbstractBlight;
+import com.megacrit.cardcrawl.characters.AbstractPlayer;
+import com.megacrit.cardcrawl.core.CardCrawlGame;
+import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.helpers.BlightHelper;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
 import com.megacrit.cardcrawl.rooms.EventRoom;
 import com.megacrit.cardcrawl.screens.options.ExitGameButton;
 import com.megacrit.cardcrawl.screens.options.SettingsScreen;
+import demoMod.cfcracing.CatFoodCupRacingMod;
 import demoMod.cfcracing.blights.SLinBattle;
 import demoMod.cfcracing.blights.SLoutBattle;
+
+import java.io.IOException;
 
 import static demoMod.cfcracing.CatFoodCupRacingMod.myActions;
 
 public class SaveLoadCheck implements CustomSavable<Integer> {
     public Integer onSave() {
+        CatFoodCupRacingMod.saves.setFloat("lastPlayTime", CardCrawlGame.playtime);
+        CatFoodCupRacingMod.saves.setString("lastStartTime", Long.toString(System.currentTimeMillis()));
+        try {
+            CatFoodCupRacingMod.saves.save();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         return 1;
     }
 
@@ -27,21 +40,28 @@ public class SaveLoadCheck implements CustomSavable<Integer> {
         myActions.add(new AbstractGameAction() {
             @Override
             public void update() {
-                if (AbstractDungeon.getCurrMapNode() == null || AbstractDungeon.getCurrRoom() == null) return;
-                this.isDone = true;
-                if (AbstractDungeon.getCurrRoom().phase == AbstractRoom.RoomPhase.COMBAT && !(AbstractDungeon.getCurrRoom()).isBattleOver) {
-                    if (!AbstractDungeon.player.hasBlight(SLinBattle.ID)) {
-                        SLinBattle slinBattle = new SLinBattle();
-                        slinBattle.instantObtain(AbstractDungeon.player, AbstractDungeon.player.blights.size(), true);
+                myActions.add(new AbstractGameAction() {
+                    @Override
+                    public void update() {
+                        this.isDone = true;
+                        if (AbstractDungeon.getCurrMapNode() == null || AbstractDungeon.getCurrRoom() == null) return;
+                        if (AbstractDungeon.getCurrRoom().phase == AbstractRoom.RoomPhase.COMBAT && !(AbstractDungeon.getCurrRoom()).isBattleOver) {
+                            if (!AbstractDungeon.player.hasBlight(SLinBattle.ID)) {
+                                SLinBattle slinBattle = new SLinBattle();
+                                slinBattle.instantObtain(AbstractDungeon.player, AbstractDungeon.player.blights.size(), true);
+                            }
+                        } else {
+                            if (!AbstractDungeon.player.hasBlight(SLoutBattle.ID)) {
+                                SLoutBattle sloutBattle = new SLoutBattle();
+                                sloutBattle.instantObtain(AbstractDungeon.player, AbstractDungeon.player.blights.size(), true);
+                            }
+                        }
                     }
-                } else {
-                    if (!AbstractDungeon.player.hasBlight(SLoutBattle.ID)) {
-                        SLoutBattle sloutBattle = new SLoutBattle();
-                        sloutBattle.instantObtain(AbstractDungeon.player, AbstractDungeon.player.blights.size(), true);
-                    }
-                }
+                });
+                isDone = true;
             }
         });
+        CatFoodCupRacingMod.saves.setString("lastStartTime", Long.toString(System.currentTimeMillis()));
     }
 
     @SpirePatch(clz = BlightHelper.class, method = "getBlight")
@@ -50,13 +70,6 @@ public class SaveLoadCheck implements CustomSavable<Integer> {
             if (id.equals(SLinBattle.ID)) {
                 return SpireReturn.Return(new SLinBattle());
             }
-            return SpireReturn.Continue();
-        }
-    }
-
-    @SpirePatch(clz = BlightHelper.class, method = "getBlight")
-    public static class PatchBlights2 {
-        public static SpireReturn<AbstractBlight> Prefix(String id) {
             if (id.equals(SLoutBattle.ID)) {
                 return SpireReturn.Return(new SLoutBattle());
             }
@@ -111,6 +124,23 @@ public class SaveLoadCheck implements CustomSavable<Integer> {
                         AbstractDungeon.player.getBlight(SLoutBattle.ID).flash();
                     }
                 }
+            }
+        }
+    }
+
+    @SpirePatch(
+            clz = Settings.class,
+            method = "setFinalActAvailability"
+    )
+    public static class ResetSLMark {
+        public static void Postfix() {
+            System.out.println("Reset SL counters...");
+            CatFoodCupRacingMod.saves.setInt("slInCombat", 1);
+            CatFoodCupRacingMod.saves.setInt("slOutCombat", 1);
+            try {
+                CatFoodCupRacingMod.saves.save();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
         }
     }

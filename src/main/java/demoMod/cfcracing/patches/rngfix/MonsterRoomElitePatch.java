@@ -4,42 +4,40 @@ import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.random.Random;
-import com.megacrit.cardcrawl.rooms.ShopRoom;
+import com.megacrit.cardcrawl.rooms.MonsterRoomElite;
 import demoMod.cfcracing.CatFoodCupRacingMod;
 
 import java.io.IOException;
 
-public class ShopRoomPatch {
+public class MonsterRoomElitePatch {
     @SpirePatch(
-            clz = ShopRoom.class,
+            clz = MonsterRoomElite.class,
             method = "onPlayerEntry"
     )
     public static class PatchOnPlayerEntry {
-        public static void Prefix(ShopRoom room) {
+        public static void Postfix(MonsterRoomElite monsterRoomElite) {
             int count = 0;
-            if (CatFoodCupRacingMod.saves.has("merchantRngCounter")) {
-                count = CatFoodCupRacingMod.saves.getInt("merchantRngCounter");
+            if (CatFoodCupRacingMod.saves.has("eliteCount")) {
+                count = CatFoodCupRacingMod.saves.getInt("eliteCount");
             }
             boolean needIncrementCount = false;
-            if (CatFoodCupRacingMod.saves.has("merchantRngLastFloor")) {
-                if (AbstractDungeon.floorNum > CatFoodCupRacingMod.saves.getInt("merchantRngLastFloor")) {
+            if (CatFoodCupRacingMod.saves.has("eliteLastFloor")) {
+                if (AbstractDungeon.floorNum > CatFoodCupRacingMod.saves.getInt("eliteLastFloor")) {
                     needIncrementCount = true;
                 }
             } else {
                 needIncrementCount = true;
             }
-            CatFoodCupRacingMod.saves.setInt("merchantRngLastFloor", AbstractDungeon.floorNum);
+            CatFoodCupRacingMod.saves.setInt("eliteLastFloor", AbstractDungeon.floorNum);
             if (needIncrementCount) {
-                CatFoodCupRacingMod.saves.setInt("merchantRngCounter", ++count);
+                CatFoodCupRacingMod.saves.setInt("eliteCount", ++count);
                 try {
                     CatFoodCupRacingMod.saves.save();
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
             }
-            AbstractDungeon.merchantRng = new Random(Settings.seed + count);
-            AbstractDungeon.miscRng = new Random(Settings.seed + count + 109);
-            room.baseRareCardChance = 12;
+            CardGroupPatch.PatchGetRandomCard2.eliteCardRng = new Random(Settings.seed + CatFoodCupRacingMod.saves.getInt("eliteCount"));
         }
     }
 }

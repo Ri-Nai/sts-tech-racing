@@ -79,6 +79,9 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
             saves.setInt("wheelGameCounter", 0);
             saves.setInt("matchGameCounter", 0);
             saves.setInt("cardRarityRngCounter", 0);
+            saves.setInt("cardRarityEliteRngCounter", 0);
+            saves.setInt("eliteCount", 0);
+            saves.setInt("eliteLastFloor", -1);
             saves.setInt("merchantRngCounter", 0);
             saves.setInt("wheelGameLastFloor", -1);
             saves.setInt("matchGameLastFloor", -1);
@@ -87,6 +90,8 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
             saves.setInt("treasureLastFloor", -1);
             saves.setFloat("totalTime", 0);
             saves.setFloat("correctTime", 0);
+            saves.setString("lastStartTime", Long.toString(System.currentTimeMillis()));
+            saves.setFloat("lastPlayTime", 0.0F);
             TopPanelPatch.correct = 0.0F;
 
             saves.setInt("EventRngCountLast", -1);
@@ -96,6 +101,7 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+            MonsterHelperPatch.encounterMap.clear();
         }
         purgeCardPool();
     }

@@ -24,6 +24,7 @@ public class SaveFilePatch {
             saveFile.ai_seed_count = AbstractDungeon.aiRng.counter;
             saveFile.shuffle_seed_count = AbstractDungeon.shuffleRng.counter;
             CatFoodCupRacingMod.saves.setInt("cardRarityRngCounter", AbstractDungeonPatch.CardRarityRngFix.cardRarityRng.counter);
+            CatFoodCupRacingMod.saves.setInt("cardRarityEliteRngCounter", AbstractDungeonPatch.CardRarityRngFix.cardRarityEliteRng.counter);
             CatFoodCupRacingMod.saves.setString("shrines", gson.toJson(AbstractDungeon.shrineList));
             try {
                 CatFoodCupRacingMod.saves.save();

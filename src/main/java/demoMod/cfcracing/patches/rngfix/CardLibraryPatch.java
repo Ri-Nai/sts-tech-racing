@@ -10,6 +10,8 @@ import com.megacrit.cardcrawl.cards.curses.Necronomicurse;
 import com.megacrit.cardcrawl.cards.curses.Pride;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.helpers.CardLibrary;
+import com.megacrit.cardcrawl.rooms.MonsterRoomBoss;
+import com.megacrit.cardcrawl.rooms.MonsterRoomElite;
 import com.megacrit.cardcrawl.rooms.TreasureRoom;
 import com.megacrit.cardcrawl.unlock.UnlockTracker;
 import demoMod.cfcracing.CatFoodCupRacingMod;
@@ -59,7 +61,7 @@ public class CardLibraryPatch {
                             && !(card.type == AbstractCard.CardType.STATUS)
                             && !UnlockTracker.isCardLocked(card.cardID)
                             && !CatFoodCupRacingMod.isDisabled(card)).collect(Collectors.toList());
-            Collections.shuffle(cards, new Random(AbstractDungeon.cardRng.randomLong()));
+            Collections.shuffle(cards, new Random((AbstractDungeon.getCurrRoom() instanceof MonsterRoomBoss ? CardGroupPatch.PatchGetRandomCard2.bossCardRng : (AbstractDungeon.getCurrRoom() instanceof MonsterRoomElite ? CardGroupPatch.PatchGetRandomCard2.eliteCardRng : AbstractDungeon.cardRng)).randomLong()));
             return SpireReturn.Return(cards.get(0));
         }
     }

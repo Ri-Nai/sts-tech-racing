@@ -160,6 +160,14 @@ public class TopPanelPatch {
                 }
             }
         }
+
+        public static void Postfix(AbstractDungeon dungeon) {
+            if (!CardCrawlGame.stopClock && CatFoodCupRacingMod.saves.has("lastStartTime")) {
+                double lastStartTime = Long.parseLong(CatFoodCupRacingMod.saves.getString("lastStartTime")) / 1000.0;
+                double currentTime = System.currentTimeMillis() / 1000.0;
+                CardCrawlGame.playtime = CatFoodCupRacingMod.saves.getFloat("lastPlayTime") + (float) (currentTime - lastStartTime);
+            }
+        }
     }
 
     @SpirePatch(

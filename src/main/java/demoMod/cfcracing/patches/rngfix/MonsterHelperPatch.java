@@ -18,10 +18,6 @@ public class MonsterHelperPatch implements CustomSavable<HashMap<String, Integer
     public static HashMap<String, Integer> encounterMap = new HashMap<>();
 
     public HashMap<String, Integer> onSave() {
-        if (AbstractDungeon.floorNum < 1) {
-            encounterMap.clear();
-            TopPanelPatch.correct = 0F;
-        }
         CatFoodCupRacingMod.saves.setFloat("correctTime", TopPanelPatch.correct);
         try {
             CatFoodCupRacingMod.saves.save();
@@ -32,15 +28,15 @@ public class MonsterHelperPatch implements CustomSavable<HashMap<String, Integer
     }
 
     public void onLoad(HashMap<String, Integer> map) {
+        //读碎心减时的部分放这里写了，懒得新建一个存档类了
+        if (CatFoodCupRacingMod.saves.has("correctTime")) {
+            TopPanelPatch.correct = CatFoodCupRacingMod.saves.getFloat("correctTime");
+        }
         if (map == null) {
             return;
         }
         encounterMap.clear();
         encounterMap.putAll(map);
-        //读碎心减时的部分放这里写了，懒得新建一个存档类了
-        if (CatFoodCupRacingMod.saves.has("correctTime")) {
-            TopPanelPatch.correct = CatFoodCupRacingMod.saves.getFloat("correctTime");
-        }
     }
 
     @SpirePatch(

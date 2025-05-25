@@ -12,6 +12,7 @@ import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.neow.NeowEvent;
 import com.megacrit.cardcrawl.neow.NeowRoom;
 import com.megacrit.cardcrawl.rooms.MonsterRoomBoss;
+import com.megacrit.cardcrawl.rooms.MonsterRoomElite;
 import com.megacrit.cardcrawl.rooms.ShopRoom;
 
 import java.util.*;
@@ -141,12 +142,20 @@ public class CardGroupPatch {
     )
     public static class PatchGetRandomCard2 {
         public static com.megacrit.cardcrawl.random.Random bossCardRng;
+        public static com.megacrit.cardcrawl.random.Random eliteCardRng;
+
         public static SpireReturn<AbstractCard> Prefix(CardGroup cardGroup, boolean useRng) {
             if (AbstractDungeon.getCurrRoom() instanceof MonsterRoomBoss) {
                 if (bossCardRng == null) {
                     MonsterRoomBossPatch.PatchOnPlayerEntry.Postfix(null);
                 }
                 return SpireReturn.Return(useRng ? cardGroup.group.get(bossCardRng.random(cardGroup.group.size() - 1)) : cardGroup.group.get(MathUtils.random(cardGroup.group.size() - 1)));
+            }
+            if (AbstractDungeon.getCurrRoom() instanceof MonsterRoomElite) {
+                if (eliteCardRng == null) {
+                    MonsterRoomElitePatch.PatchOnPlayerEntry.Postfix(null);
+                }
+                return SpireReturn.Return(useRng ? cardGroup.group.get(eliteCardRng.random(cardGroup.group.size() - 1)) : cardGroup.group.get(MathUtils.random(cardGroup.group.size() - 1)));
             }
             return SpireReturn.Continue();
         }

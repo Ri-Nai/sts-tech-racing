@@ -26,6 +26,8 @@ import com.megacrit.cardcrawl.helpers.EventHelper;
 import com.megacrit.cardcrawl.helpers.PotionHelper;
 import com.megacrit.cardcrawl.potions.AbstractPotion;
 import com.megacrit.cardcrawl.random.Random;
+import com.megacrit.cardcrawl.relics.NlothsGift;
+import com.megacrit.cardcrawl.rooms.MonsterRoomElite;
 import com.megacrit.cardcrawl.rooms.ShopRoom;
 import com.megacrit.cardcrawl.saveAndContinue.SaveFile;
 import com.megacrit.cardcrawl.vfx.AbstractGameEffect;
@@ -172,6 +174,8 @@ public class AbstractDungeonPatch {
 
     public static class CardRarityRngFix {
         public static Random cardRarityRng;
+        public static Random cardRarityEliteRng;
+        public static Random tmpRng;
 
         @SpirePatch(
                 clz = AbstractDungeon.class,
@@ -180,6 +184,7 @@ public class AbstractDungeonPatch {
         public static class PatchGenerateSeeds {
             public static void Postfix() {
                 cardRarityRng = new Random(Settings.seed);
+                cardRarityEliteRng = new Random(Settings.seed);
             }
         }
 
@@ -197,7 +202,11 @@ public class AbstractDungeonPatch {
                 if (!CatFoodCupRacingMod.saves.has("cardRarityRngCounter")) {
                     CatFoodCupRacingMod.saves.setInt("cardRarityRngCounter", 0);
                 }
+                if (!CatFoodCupRacingMod.saves.has("cardRarityEliteRngCounter")) {
+                    CatFoodCupRacingMod.saves.setInt("cardRarityEliteRngCounter", 0);
+                }
                 cardRarityRng = new Random(Settings.seed, CatFoodCupRacingMod.saves.getInt("cardRarityRngCounter"));
+                cardRarityEliteRng = new Random(Settings.seed, CatFoodCupRacingMod.saves.getInt("cardRarityEliteRngCounter"));
             }
         }
 
@@ -209,7 +218,17 @@ public class AbstractDungeonPatch {
         public static class PatchRollRarity {
             public static SpireReturn<AbstractCard.CardRarity> Prefix() {
                 if (AbstractDungeon.getCurrRoom() instanceof ShopRoom) {
-                    return SpireReturn.Return(AbstractDungeon.currMapNode == null ? getCardRarityFallback(AbstractDungeon.merchantRng.random(99)) : AbstractDungeon.getCurrRoom().getCardRarity(AbstractDungeon.merchantRng.random(99)));
+                    return SpireReturn.Return(AbstractDungeon.currMapNode == null ? getCardRarityFallback(AbstractDungeon.miscRng.random(99)) : AbstractDungeon.getCurrRoom().getCardRarity(AbstractDungeon.miscRng.random(99)));
+                }
+                if (AbstractDungeon.getCurrRoom() instanceof MonsterRoomElite) {
+                    if (tmpRng == null) {
+                        tmpRng = AbstractDungeon.cardRng;
+                        AbstractDungeon.cardRng = CardGroupPatch.PatchGetRandomCard2.eliteCardRng;
+                    }
+                    return SpireReturn.Return(getCardRarityForElite(cardRarityEliteRng.random(99)));
+                } else if (tmpRng != null) {
+                    AbstractDungeon.cardRng = tmpRng;
+                    tmpRng = null;
                 }
                 return SpireReturn.Return(AbstractDungeon.rollRarity(cardRarityRng));
             }
@@ -220,6 +239,18 @@ public class AbstractDungeonPatch {
                     return AbstractCard.CardRarity.RARE;
                 } else {
                     return roll < 40 ? AbstractCard.CardRarity.UNCOMMON : AbstractCard.CardRarity.COMMON;
+                }
+            }
+
+            private static AbstractCard.CardRarity getCardRarityForElite(int roll) {
+                int rareRate = 15;
+                if (AbstractDungeon.player.hasRelic(NlothsGift.ID)) {
+                    rareRate *= 3;
+                }
+                if (roll < rareRate) {
+                    return AbstractCard.CardRarity.RARE;
+                } else {
+                    return roll < 40 + rareRate ? AbstractCard.CardRarity.UNCOMMON : AbstractCard.CardRarity.COMMON;
                 }
             }
         }
