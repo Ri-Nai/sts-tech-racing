@@ -45,8 +45,8 @@ public class FixObtainKeyEffect {
 
                     public void edit(FieldAccess f) throws CannotCompileException {
                         if ("duration".equals(f.getFieldName())) {
-                            if (count == 1) {
-                                f.replace("{$_=($proceed($$) - 1.1F);}");
+                            if (count == 2) {
+                                f.replace("{$_=($0.duration - 1.1F);}");
                             }
                             count++;
                         }
