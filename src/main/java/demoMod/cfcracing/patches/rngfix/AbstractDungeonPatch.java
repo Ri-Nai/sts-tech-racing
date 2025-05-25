@@ -94,6 +94,7 @@ public class AbstractDungeonPatch {
             condition.put(TheJoust.ID, () -> AbstractDungeon.id.equals("TheCity") && AbstractDungeon.player.gold >= 50);
             condition.put(WomanInBlue.ID, () -> AbstractDungeon.player.gold >= 50);
             condition.put(SecretPortal.ID, () -> AbstractDungeon.id.equals("TheBeyond") && CardCrawlGame.playtime >= 800.0F);
+            condition.put(NoteForYourself.ID, () -> false);
         }
 
         public static SpireReturn<AbstractEvent> Prefix(Random rng) {
