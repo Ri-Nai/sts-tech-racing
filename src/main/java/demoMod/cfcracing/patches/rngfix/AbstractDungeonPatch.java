@@ -226,6 +226,7 @@ public class AbstractDungeonPatch {
                         tmpRng = AbstractDungeon.cardRng;
                         AbstractDungeon.cardRng = CardGroupPatch.PatchGetRandomCard2.eliteCardRng;
                     }
+                    System.out.println("cardRarityEliteRng counter: " + CatFoodCupRacingMod.saves.getInt("cardRarityEliteRngCounter"));
                     return SpireReturn.Return(getCardRarityForElite(cardRarityEliteRng.random(99)));
                 } else if (tmpRng != null) {
                     AbstractDungeon.cardRng = tmpRng;

@@ -155,6 +155,7 @@ public class CardGroupPatch {
                 if (eliteCardRng == null) {
                     MonsterRoomElitePatch.PatchOnPlayerEntry.Postfix(null);
                 }
+                System.out.println("eliteCardRng count: " + eliteCardRng.counter);
                 return SpireReturn.Return(useRng ? cardGroup.group.get(eliteCardRng.random(cardGroup.group.size() - 1)) : cardGroup.group.get(MathUtils.random(cardGroup.group.size() - 1)));
             }
             return SpireReturn.Continue();

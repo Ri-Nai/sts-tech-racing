@@ -23,13 +23,15 @@ public class SaveFilePatch {
             saveFile.monster_hp_seed_count = AbstractDungeon.monsterHpRng.counter;
             saveFile.ai_seed_count = AbstractDungeon.aiRng.counter;
             saveFile.shuffle_seed_count = AbstractDungeon.shuffleRng.counter;
-            CatFoodCupRacingMod.saves.setInt("cardRarityRngCounter", AbstractDungeonPatch.CardRarityRngFix.cardRarityRng.counter);
-            CatFoodCupRacingMod.saves.setInt("cardRarityEliteRngCounter", AbstractDungeonPatch.CardRarityRngFix.cardRarityEliteRng.counter);
-            CatFoodCupRacingMod.saves.setString("shrines", gson.toJson(AbstractDungeon.shrineList));
-            try {
-                CatFoodCupRacingMod.saves.save();
-            } catch (IOException e) {
-                e.printStackTrace();
+            if (saveType == SaveFile.SaveType.ENTER_ROOM) {
+                CatFoodCupRacingMod.saves.setInt("cardRarityRngCounter", AbstractDungeonPatch.CardRarityRngFix.cardRarityRng.counter);
+                CatFoodCupRacingMod.saves.setInt("cardRarityEliteRngCounter", AbstractDungeonPatch.CardRarityRngFix.cardRarityEliteRng.counter);
+                CatFoodCupRacingMod.saves.setString("shrines", gson.toJson(AbstractDungeon.shrineList));
+                try {
+                    CatFoodCupRacingMod.saves.save();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
