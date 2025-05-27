@@ -2,7 +2,9 @@ package demoMod.cfcracing.patches.rngfix;
 
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.google.gson.Gson;
+import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
+import com.megacrit.cardcrawl.random.Random;
 import com.megacrit.cardcrawl.saveAndContinue.SaveFile;
 import demoMod.cfcracing.CatFoodCupRacingMod;
 
@@ -27,6 +29,12 @@ public class SaveFilePatch {
                 CatFoodCupRacingMod.saves.setInt("cardRarityRngCounter", AbstractDungeonPatch.CardRarityRngFix.cardRarityRng.counter);
                 CatFoodCupRacingMod.saves.setInt("cardRarityEliteRngCounter", AbstractDungeonPatch.CardRarityRngFix.cardRarityEliteRng.counter);
                 CatFoodCupRacingMod.saves.setString("shrines", gson.toJson(AbstractDungeon.shrineList));
+                if (CatFoodCupRacingMod.saves.getInt("cardRngCounter") < AbstractDungeon.cardRng.counter) {
+                    CatFoodCupRacingMod.saves.setInt("cardRngCounter", AbstractDungeon.cardRng.counter);
+                } else {
+                    AbstractDungeon.cardRng = new Random(Settings.seed, CatFoodCupRacingMod.saves.getInt("cardRngCounter"));
+                }
+                System.out.println("cardRng count(enter room save): " + AbstractDungeon.cardRng.counter);
                 try {
                     CatFoodCupRacingMod.saves.save();
                 } catch (IOException e) {

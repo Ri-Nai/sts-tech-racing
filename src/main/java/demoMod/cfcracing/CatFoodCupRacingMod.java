@@ -80,6 +80,7 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
             saves.setInt("matchGameCounter", 0);
             saves.setInt("cardRarityRngCounter", 0);
             saves.setInt("cardRarityEliteRngCounter", 0);
+            saves.setInt("cardRngCounter", 0);
             saves.setInt("eliteCount", 0);
             saves.setInt("eliteLastFloor", -1);
             saves.setInt("merchantRngCounter", 0);

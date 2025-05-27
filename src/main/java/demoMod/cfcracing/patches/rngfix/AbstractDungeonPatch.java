@@ -208,6 +208,12 @@ public class AbstractDungeonPatch {
                 }
                 cardRarityRng = new Random(Settings.seed, CatFoodCupRacingMod.saves.getInt("cardRarityRngCounter"));
                 cardRarityEliteRng = new Random(Settings.seed, CatFoodCupRacingMod.saves.getInt("cardRarityEliteRngCounter"));
+                if (!CatFoodCupRacingMod.saves.has("cardRngCounter")) {
+                    CatFoodCupRacingMod.saves.setInt("cardRngCounter", AbstractDungeon.cardRng.counter);
+                } else {
+                    AbstractDungeon.cardRng = new Random(Settings.seed, CatFoodCupRacingMod.saves.getInt("cardRngCounter"));
+                }
+                System.out.println("cardRng count(load seeds): " + AbstractDungeon.cardRng.counter);
             }
         }
 
