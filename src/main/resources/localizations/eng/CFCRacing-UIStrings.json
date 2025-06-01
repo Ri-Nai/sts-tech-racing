@@ -13,5 +13,20 @@
       "Defect",
       "Watcher"
     ]
+  },
+  "cfc:WheelOptions": {
+    "TEXT": [
+      "Basic Logic",
+      "Eternal Curse"
+    ],
+    "EXTRA_TEXT": [
+      "Start a run with an Iron Wave.",
+      "Ascender's Bane will no longer Ethereal."
+    ]
+  },
+  "cfc:WheelOptionsTitle": {
+    "TEXT": [
+      "Wheel Options"
+    ]
   }
 }

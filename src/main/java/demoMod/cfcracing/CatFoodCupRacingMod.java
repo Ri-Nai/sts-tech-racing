@@ -26,6 +26,7 @@ import demoMod.cfcracing.patches.rngfix.MonsterHelperPatch;
 import demoMod.cfcracing.ui.CardFilterModMenu;
 import demoMod.cfcracing.ui.CardFilterModMenuButton;
 import demoMod.cfcracing.ui.IntSlider;
+import demoMod.cfcracing.wheelOptions.WheelOptions;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -97,6 +98,7 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
 
             saves.setInt("EventRngCountLast", -1);
             saves.setString("EventResultLast", "");
+            WheelOptions.PROXY.onStartGame();
             try {
                 saves.save();
             } catch (IOException e) {

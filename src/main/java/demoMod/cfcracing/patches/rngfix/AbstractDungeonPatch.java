@@ -33,6 +33,7 @@ import com.megacrit.cardcrawl.saveAndContinue.SaveFile;
 import com.megacrit.cardcrawl.vfx.AbstractGameEffect;
 import com.megacrit.cardcrawl.vfx.cardManip.ShowCardAndObtainEffect;
 import demoMod.cfcracing.CatFoodCupRacingMod;
+import demoMod.cfcracing.wheelOptions.WheelOptions;
 import javassist.CannotCompileException;
 import javassist.expr.ExprEditor;
 import javassist.expr.MethodCall;
@@ -330,6 +331,7 @@ public class AbstractDungeonPatch {
                 AbstractDungeon.shrineList = SaveFilePatch.gson.fromJson(CatFoodCupRacingMod.saves.getString("shrines"), new TypeToken<ArrayList<String>>() {
                 }.getType());
             }
+            WheelOptions.PROXY.onLoadSave();
         }
     }
 
