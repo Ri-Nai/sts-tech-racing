@@ -56,7 +56,7 @@ public class TopPanelPatch {
         @SpireInsertPatch(rloc = 10, localvars = {"clockColor"})
         static public void Insert2(TopPanel __instance, SpriteBatch sb, @ByRef Color[] clockColor) {
             CardCrawlGame.stopClock = tmp;
-            if (CardCrawlGame.stopClock) {
+            if (CardCrawlGame.stopClock || correct > 0.0F) {
                 clockColor[0] = Settings.GREEN_TEXT_COLOR;
             } else {
                 if (CardCrawlGame.playtime < 800) {
@@ -88,7 +88,7 @@ public class TopPanelPatch {
         }
 
         public static boolean check() {
-            return CatFoodCupRacingMod.saves.has("totalTime") && CatFoodCupRacingMod.saves.getFloat("totalTime") > 0.0F && AbstractDungeon.floorNum > 0;
+            return correct > 0.0F && AbstractDungeon.floorNum > 0;
         }
 
         public static String cal() {

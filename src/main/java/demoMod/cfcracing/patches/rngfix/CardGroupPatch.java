@@ -14,6 +14,7 @@ import com.megacrit.cardcrawl.neow.NeowRoom;
 import com.megacrit.cardcrawl.rooms.MonsterRoomBoss;
 import com.megacrit.cardcrawl.rooms.MonsterRoomElite;
 import com.megacrit.cardcrawl.rooms.ShopRoom;
+import demoMod.cfcracing.wheelOptions.WheelOptions;
 
 import java.util.*;
 
@@ -212,6 +213,18 @@ public class CardGroupPatch {
             if(idx > group.group.size() - 1) idx = group.group.size() - 1;
             group.group.add(idx, c);
             return SpireReturn.Return(null);
+        }
+    }
+
+    @SpirePatch(
+            clz = CardGroup.class,
+            method = "addToTop"
+    )
+    public static class PatchAddToTop {
+        public static void Prefix(CardGroup group, AbstractCard card) {
+            if (AbstractDungeon.player != null && group == AbstractDungeon.player.masterDeck) {
+                WheelOptions.PROXY.onObtainCard(card);
+            }
         }
     }
 }

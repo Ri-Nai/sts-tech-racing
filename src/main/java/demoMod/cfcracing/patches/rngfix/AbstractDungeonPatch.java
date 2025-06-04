@@ -70,6 +70,13 @@ public class AbstractDungeonPatch {
         public static void Postfix(AbstractDungeon dungeon, SaveFile saveFile) {
             AbstractDungeon.effectList.addAll(tmpEffectList);
         }
+
+        @SpireInsertPatch(rloc = 94)
+        public static void Insert(AbstractDungeon dungeon, SaveFile saveFile) {
+            if (AbstractDungeon.nextRoom != null) {
+                WheelOptions.PROXY.onEnterRoom(AbstractDungeon.nextRoom.room);
+            }
+        }
     }
 
     @SpirePatch(

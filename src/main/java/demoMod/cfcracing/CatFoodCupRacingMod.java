@@ -5,6 +5,7 @@ import basemod.interfaces.*;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireConfig;
 import com.evacipated.cardcrawl.modthespire.lib.SpireInitializer;
 import com.megacrit.cardcrawl.actions.AbstractGameAction;
@@ -18,6 +19,7 @@ import com.megacrit.cardcrawl.helpers.ImageMaster;
 import com.megacrit.cardcrawl.localization.BlightStrings;
 import com.megacrit.cardcrawl.localization.UIStrings;
 import com.megacrit.cardcrawl.ui.DialogWord;
+import com.megacrit.cardcrawl.vfx.AbstractGameEffect;
 import com.megacrit.cardcrawl.vfx.SpeechTextEffect;
 import demoMod.cfcracing.entity.CardSetting;
 import demoMod.cfcracing.patches.SaveLoadCheck;
@@ -29,10 +31,7 @@ import demoMod.cfcracing.ui.IntSlider;
 import demoMod.cfcracing.wheelOptions.WheelOptions;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 
 @SpireInitializer
@@ -40,11 +39,13 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
         PostInitializeSubscriber,
         PostDungeonInitializeSubscriber,
         StartActSubscriber,
-        EditStringsSubscriber, PostUpdateSubscriber {
+        EditStringsSubscriber, PostUpdateSubscriber, PostRenderSubscriber {
     public static SpireConfig saves;
     public static HashMap<String, CardSetting> configSettings = new HashMap<>();
 
     public static ArrayList<AbstractGameAction> myActions = new ArrayList<>();
+
+    public static List<AbstractGameEffect> effectList = new ArrayList<>();
 
     public static boolean defaultA15Option = false;
 
@@ -99,6 +100,7 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
             saves.setInt("EventRngCountLast", -1);
             saves.setString("EventResultLast", "");
             WheelOptions.PROXY.onStartGame();
+            WheelOptions.PROXY.onLoadSave();
             try {
                 saves.save();
             } catch (IOException e) {
@@ -390,6 +392,8 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
         if (!BaseMod.modSettingsUp) {
             CardFilterModMenu.hidden = true;
         }
+        effectList.forEach(AbstractGameEffect::update);
+        effectList.removeIf(e -> e.isDone);
     }
 
 
@@ -452,5 +456,10 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
             else if (c.type == AbstractCard.CardType.POWER) cntP++;
         }
         return cntA >= 3 && cntS >= 3 && cntP >= 3;//药水等
+    }
+
+    @Override
+    public void receivePostRender(SpriteBatch sb) {
+        effectList.forEach(e -> e.render(sb));
     }
 }
