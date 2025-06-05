@@ -7,7 +7,7 @@ import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpireReturn;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.cards.CardGroup;
-import com.megacrit.cardcrawl.core.Settings;
+import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.neow.NeowEvent;
 import com.megacrit.cardcrawl.neow.NeowRoom;
@@ -222,8 +222,23 @@ public class CardGroupPatch {
     )
     public static class PatchAddToTop {
         public static void Prefix(CardGroup group, AbstractCard card) {
-            if (AbstractDungeon.player != null && group == AbstractDungeon.player.masterDeck) {
+            if (AbstractDungeon.player != null && group == AbstractDungeon.player.masterDeck && !CardCrawlGame.loadingSave) {
                 WheelOptions.PROXY.onObtainCard(card);
+            }
+        }
+    }
+
+    @SpirePatch(
+            clz = CardGroup.class,
+            method = "removeCard",
+            paramtypez = {
+                    AbstractCard.class
+            }
+    )
+    public static class PatchRemoveCard {
+        public static void Postfix(CardGroup group, AbstractCard c) {
+            if (AbstractDungeon.player != null && group == AbstractDungeon.player.masterDeck) {
+                WheelOptions.PROXY.onRemoveCardFromDeck(c);
             }
         }
     }

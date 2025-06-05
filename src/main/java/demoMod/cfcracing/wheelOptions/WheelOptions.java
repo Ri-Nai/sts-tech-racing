@@ -64,12 +64,20 @@ public enum WheelOptions {
             if (room instanceof TreasureRoom && AbstractDungeon.actNum == 2 && !AbstractDungeon.player.hasRelic(PrismaticShard.ID)) {
                 new PrismaticShard().instantObtain();
             }
+            AbstractDungeon.shopRelicPool.remove(PrismaticShard.ID);
         }
 
         @Override
         public void onObtainCard(AbstractCard card) {
-            if (card.color != AbstractDungeon.player.getCardColor()) {
+            if (card.color != AbstractDungeon.player.getCardColor() && card.color != AbstractCard.CardColor.COLORLESS) {
                 TopPanelPatch.correct += 16.0F;
+            }
+        }
+
+        @Override
+        public void onRemoveCardFromDeck(AbstractCard card) {
+            if (card.color != AbstractDungeon.player.getCardColor() && card.color != AbstractCard.CardColor.COLORLESS) {
+                CatFoodCupRacingMod.saves.setFloat("lastPlayTime", CatFoodCupRacingMod.saves.getFloat("lastPlayTime") + 16.0F);
             }
         }
     },
@@ -134,6 +142,15 @@ public enum WheelOptions {
             }
             WheelOptions.values()[index].onObtainCard(card);
         }
+
+        @Override
+        public void onRemoveCardFromDeck(AbstractCard card) {
+            int index = check();
+            if (index < 0 || index == this.ordinal()) {
+                return;
+            }
+            WheelOptions.values()[index].onRemoveCardFromDeck(card);
+        }
     }
     ;
 
@@ -158,6 +175,10 @@ public enum WheelOptions {
     }
 
     public void onObtainCard(AbstractCard card) {
+
+    }
+
+    public void onRemoveCardFromDeck(AbstractCard card) {
 
     }
 }

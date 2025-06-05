@@ -16,7 +16,6 @@ import com.megacrit.cardcrawl.helpers.EventHelper;
 import com.megacrit.cardcrawl.helpers.FontHelper;
 import com.megacrit.cardcrawl.helpers.SaveHelper;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
-import com.megacrit.cardcrawl.rooms.AbstractRoom;
 import com.megacrit.cardcrawl.rooms.EventRoom;
 import com.megacrit.cardcrawl.saveAndContinue.SaveFile;
 import com.megacrit.cardcrawl.screens.DeathScreen;
@@ -88,7 +87,7 @@ public class TopPanelPatch {
         }
 
         public static boolean check() {
-            return correct > 0.0F && AbstractDungeon.floorNum > 0;
+            return correct > 0.0F || CatFoodCupRacingMod.saves.has("totalTime") && CatFoodCupRacingMod.saves.getFloat("totalTime") > 0.0F && AbstractDungeon.floorNum > 0;
         }
 
         public static String cal() {
