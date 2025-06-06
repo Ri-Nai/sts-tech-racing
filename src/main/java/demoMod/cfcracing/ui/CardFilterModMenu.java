@@ -27,10 +27,7 @@ import demoMod.cfcracing.entity.CardSetting;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 public class CardFilterModMenu implements TabBarListener, ScrollBarListener, IUIElement {
     private static final Logger logger = LogManager.getLogger(CardFilterModMenu.class.getName());
@@ -198,8 +195,7 @@ public class CardFilterModMenu implements TabBarListener, ScrollBarListener, IUI
         if (Settings.isControllerMode && this.controllerCard != null && !CardCrawlGame.isPopupOpen) {
             if (Gdx.input.getY() > Settings.HEIGHT * 0.75F) {
                 this.currentDiffY += Settings.SCROLL_SPEED;
-            }
-            else if (Gdx.input.getY() < Settings.HEIGHT * 0.25F) {
+            } else if (Gdx.input.getY() < Settings.HEIGHT * 0.25F) {
                 this.currentDiffY -= Settings.SCROLL_SPEED;
             }
         }
@@ -240,7 +236,7 @@ public class CardFilterModMenu implements TabBarListener, ScrollBarListener, IUI
             CardCrawlGame.mainMenuScreen.panelScreen.refresh();
         }
         if (Settings.isControllerMode && this.controllerCard != null) {
-            Gdx.input.setCursorPosition((int)this.controllerCard.hb.cX, (int)(Settings.HEIGHT - this.controllerCard.hb.cY));
+            Gdx.input.setCursorPosition((int) this.controllerCard.hb.cX, (int) (Settings.HEIGHT - this.controllerCard.hb.cY));
         }
         this.resetButtonHb.update();
         if (this.resetButtonHb.hovered) {
@@ -271,8 +267,7 @@ public class CardFilterModMenu implements TabBarListener, ScrollBarListener, IUI
             this.type = CardLibSelectionType.FILTERS;
             this.selectionIndex = 4;
             this.controllerCard = null;
-        }
-        else if (this.sortHeader.updateControllerInput() != null) {
+        } else if (this.sortHeader.updateControllerInput() != null) {
             anyHovered = true;
             this.controllerCard = null;
             this.type = CardLibSelectionType.FILTERS;
@@ -296,7 +291,7 @@ public class CardFilterModMenu implements TabBarListener, ScrollBarListener, IUI
             case FILTERS:
                 if ((CInputActionSet.up.isJustPressed() || CInputActionSet.altUp.isJustPressed()) && this.visibleCards.size() > 5) {
                     if (this.selectionIndex < 5) {
-                        Gdx.input.setCursorPosition((int)(this.sortHeader.buttons[0]).hb.cX, Settings.HEIGHT - (int)(this.sortHeader.buttons[0]).hb.cY);
+                        Gdx.input.setCursorPosition((int) (this.sortHeader.buttons[0]).hb.cX, Settings.HEIGHT - (int) (this.sortHeader.buttons[0]).hb.cY);
                         this.controllerCard = null;
                         return;
                     }
@@ -350,13 +345,13 @@ public class CardFilterModMenu implements TabBarListener, ScrollBarListener, IUI
                 if (CInputActionSet.right.isJustPressed() || CInputActionSet.altRight.isJustPressed()) {
                     this.selectionIndex++;
                     if (this.selectionIndex == 4) {
-                        Gdx.input.setCursorPosition((int)this.colorBar.viewUpgradeHb.cX, Settings.HEIGHT - (int)this.colorBar.viewUpgradeHb.cY);
+                        Gdx.input.setCursorPosition((int) this.colorBar.viewUpgradeHb.cX, Settings.HEIGHT - (int) this.colorBar.viewUpgradeHb.cY);
                         break;
                     }
                     if (this.selectionIndex == 5) {
                         this.selectionIndex = 0;
                     }
-                    Gdx.input.setCursorPosition((int)(this.sortHeader.buttons[this.selectionIndex]).hb.cX, Settings.HEIGHT - (int)(this.sortHeader.buttons[this.selectionIndex]).hb.cY);
+                    Gdx.input.setCursorPosition((int) (this.sortHeader.buttons[this.selectionIndex]).hb.cX, Settings.HEIGHT - (int) (this.sortHeader.buttons[this.selectionIndex]).hb.cY);
 
                     break;
                 }
@@ -365,10 +360,10 @@ public class CardFilterModMenu implements TabBarListener, ScrollBarListener, IUI
                 }
                 this.selectionIndex--;
                 if (this.selectionIndex == -1) {
-                    Gdx.input.setCursorPosition((int)this.colorBar.viewUpgradeHb.cX, Settings.HEIGHT - (int)this.colorBar.viewUpgradeHb.cY);
+                    Gdx.input.setCursorPosition((int) this.colorBar.viewUpgradeHb.cX, Settings.HEIGHT - (int) this.colorBar.viewUpgradeHb.cY);
                     break;
                 }
-                Gdx.input.setCursorPosition((int)(this.sortHeader.buttons[this.selectionIndex]).hb.cX, Settings.HEIGHT - (int)(this.sortHeader.buttons[this.selectionIndex]).hb.cY);
+                Gdx.input.setCursorPosition((int) (this.sortHeader.buttons[this.selectionIndex]).hb.cX, Settings.HEIGHT - (int) (this.sortHeader.buttons[this.selectionIndex]).hb.cY);
                 break;
         }
     }
@@ -404,8 +399,7 @@ public class CardFilterModMenu implements TabBarListener, ScrollBarListener, IUI
         if (!this.grabbedScreen) {
             if (InputHelper.scrolledDown) {
                 this.currentDiffY += Settings.SCROLL_SPEED;
-            }
-            else if (InputHelper.scrolledUp) {
+            } else if (InputHelper.scrolledUp) {
                 this.currentDiffY -= Settings.SCROLL_SPEED;
             }
             if (InputHelper.justClickedLeft) {
@@ -441,41 +435,42 @@ public class CardFilterModMenu implements TabBarListener, ScrollBarListener, IUI
     private void resetScrolling() {
         if (this.currentDiffY < this.scrollLowerBound) {
             this.currentDiffY = MathHelper.scrollSnapLerpSpeed(this.currentDiffY, this.scrollLowerBound);
-        }
-        else if (this.currentDiffY > this.scrollUpperBound) {
+        } else if (this.currentDiffY > this.scrollUpperBound) {
             this.currentDiffY = MathHelper.scrollSnapLerpSpeed(this.currentDiffY, this.scrollUpperBound);
         }
     }
 
 
-    private Long hashCards(CardGroup cgp){
+    private Long hashCards(CardGroup cgp) {
         long n = 0;
-        for(AbstractCard c:cgp.group){
-            if(CatFoodCupRacingMod.configSettings.get(c.cardID).isDisabled) n+=1;
-            n<<=1;
-            n%=0xFABCDE0123456789L;
+        List<AbstractCard> tmp = new ArrayList<>(cgp.group);
+        tmp.sort(AbstractCard::compareTo);
+        for (AbstractCard c : tmp) {
+            if (CatFoodCupRacingMod.configSettings.get(c.cardID).isDisabled) n += 1;
+            n <<= 1;
+            n %= 0xFABCDE0123456789L;
         }
-        //if(n==0) return 0L;
         Random tmpR = new Random(n);
         n = tmpR.randomLong();
-        if(n == 0L) n = 42L;
+        if (n == 0L) n = 42L;
         return n;
     }
-    private Long hashCards(){
+
+    private Long hashCards() {
         long m = 0;
         Random tmpR;
 
-        m ^= hashCards(this.redCards)*3;
-        m ^= hashCards(this.greenCards)*5;
-        m ^= hashCards(this.blueCards)*7;
-        m ^= hashCards(this.purpleCards)*11;
-        m ^= hashCards(this.colorlessCards)*13;
-        m ^= hashCards(this.curseCards)*19;
+        m ^= hashCards(this.redCards) * 3;
+        m ^= hashCards(this.greenCards) * 5;
+        m ^= hashCards(this.blueCards) * 7;
+        m ^= hashCards(this.purpleCards) * 11;
+        m ^= hashCards(this.colorlessCards) * 13;
+        m ^= hashCards(this.curseCards) * 19;
 
         //if(m==0) return SeedHelper.getString(0).substring(0,5);
         tmpR = new Random(m);
         m = tmpR.randomLong();
-        if(m == 0L) m = 42L;
+        if (m == 0L) m = 42L;
         return m;
     }
 
@@ -487,10 +482,10 @@ public class CardFilterModMenu implements TabBarListener, ScrollBarListener, IUI
         FontHelper.cardEnergyFont_L.getData().setScale(1.5F);
         FontHelper.renderFontLeftTopAligned(sb, FontHelper.cardEnergyFont_L,
 
-                SeedHelper.getString(this.hashCards()).substring(0,5), 70.0F * Settings.scale, Settings.HEIGHT*2/3, Settings.GOLD_COLOR);
+                SeedHelper.getString(this.hashCards()).substring(0, 5), 70.0F * Settings.scale, Settings.HEIGHT * 2.0F / 3.0F, Settings.GOLD_COLOR);
         FontHelper.renderFontLeftTopAligned(sb, FontHelper.cardEnergyFont_L,
 
-                SeedHelper.getString(this.hashCards(this.visibleCards)).substring(0,5), 70.0F * Settings.scale, Settings.HEIGHT*2/3 - 75.0F * Settings.scale, this.colorBar.getBarColor());
+                SeedHelper.getString(this.hashCards(this.visibleCards)).substring(0, 5), 70.0F * Settings.scale, Settings.HEIGHT * 2.0F / 3.0F - 75.0F * Settings.scale, this.colorBar.getBarColor());
         this.colorBar.render(sb, (this.visibleCards.getBottomCard()).current_y + 230.0F * Settings.scale);
         this.sortHeader.render(sb);
         renderGroup(sb, this.visibleCards);
@@ -525,12 +520,12 @@ public class CardFilterModMenu implements TabBarListener, ScrollBarListener, IUI
         sb.draw(CInputActionSet.pageRightViewExhaust.getKeyImg(), 1640.0F * Settings.scale - 32.0F, (this.sortHeader.group.getBottomCard()).current_y + 280.0F * Settings.scale - 32.0F, 32.0F, 32.0F, 64.0F, 64.0F, Settings.scale, Settings.scale, 0.0F, 0, 0, 64, 64, false, false);
         if (this.type == CardLibSelectionType.FILTERS) {
             if (this.selectionIndex != 4 && this.selectionIndex != -1) {
-                sb.setColor(new Color(1.0F, 0.95F, 0.5F, 0.7F + MathUtils.cosDeg((float)(System.currentTimeMillis() / 2L % 360L)) / 5.0F));
-                float doop = 1.0F + (1.0F + MathUtils.cosDeg((float)(System.currentTimeMillis() / 2L % 360L))) / 50.0F;
+                sb.setColor(new Color(1.0F, 0.95F, 0.5F, 0.7F + MathUtils.cosDeg((float) (System.currentTimeMillis() / 2L % 360L)) / 5.0F));
+                float doop = 1.0F + (1.0F + MathUtils.cosDeg((float) (System.currentTimeMillis() / 2L % 360L))) / 50.0F;
                 sb.draw(this.filterSelectionImg, (this.sortHeader.buttons[this.selectionIndex]).hb.cX - 100.0F, (this.sortHeader.buttons[this.selectionIndex]).hb.cY - 43.0F, 100.0F, 43.0F, 200.0F, 86.0F, Settings.scale * doop, Settings.scale * doop, 0.0F, 0, 0, 200, 86, false, false);
             } else {
-                sb.setColor(new Color(1.0F, 0.95F, 0.5F, 0.7F + MathUtils.cosDeg((float)(System.currentTimeMillis() / 2L % 360L)) / 5.0F));
-                float doop = 1.0F + (1.0F + MathUtils.cosDeg((float)(System.currentTimeMillis() / 2L % 360L))) / 50.0F;
+                sb.setColor(new Color(1.0F, 0.95F, 0.5F, 0.7F + MathUtils.cosDeg((float) (System.currentTimeMillis() / 2L % 360L)) / 5.0F));
+                float doop = 1.0F + (1.0F + MathUtils.cosDeg((float) (System.currentTimeMillis() / 2L % 360L))) / 50.0F;
                 sb.draw(this.filterSelectionImg, this.colorBar.viewUpgradeHb.cX - 100.0F + 25.0F * Settings.scale, this.colorBar.viewUpgradeHb.cY - 43.0F, 100.0F, 43.0F, 200.0F, 86.0F, Settings.scale * doop * 1.6F, Settings.scale * doop, 0.0F, 0, 0, 200, 86, false, false);
             }
         }
