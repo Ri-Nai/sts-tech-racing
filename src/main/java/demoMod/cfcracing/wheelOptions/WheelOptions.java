@@ -47,6 +47,7 @@ public enum WheelOptions {
             if (!AbstractDungeon.player.hasRelic(FrozenEye.ID)) {
                 new FrozenEye().instantObtain();
             }
+            AbstractDungeon.shopRelicPool.remove(FrozenEye.ID);
         }
 
         @Override
