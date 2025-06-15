@@ -95,6 +95,7 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
             saves.setFloat("correctTime", 0);
             saves.setString("lastStartTime", Long.toString(System.currentTimeMillis()));
             saves.setFloat("lastPlayTime", 0.0F);
+            saves.setFloat("reducedTime", 0.0F);
             TopPanelPatch.correct = 0.0F;
 
             saves.setInt("EventRngCountLast", -1);

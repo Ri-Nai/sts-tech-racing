@@ -134,12 +134,6 @@ public class TopPanelPatch {
                 } else {
                     correct = (float) CatFoodCupRacingMod.watcherBonus;
                 }
-                CatFoodCupRacingMod.saves.setFloat("correctTime", correct);
-                try {
-                    CatFoodCupRacingMod.saves.save();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
             }
         }
     }
@@ -151,18 +145,17 @@ public class TopPanelPatch {
     static public class PatchUpdate {
         static public void Prefix(AbstractDungeon abstractDungeon) {
             if (!CardCrawlGame.stopClock) {
-                if (correct > 0.5F) {
-                    CatFoodCupRacingMod.saves.setFloat("lastPlayTime", CatFoodCupRacingMod.saves.getFloat("lastPlayTime") - Gdx.graphics.getDeltaTime() * 60.0F);
+                if (!CatFoodCupRacingMod.saves.has("reducedTime")) {
+                    CatFoodCupRacingMod.saves.setFloat("reducedTime", 0.0F);
+                }
+                if (correct > 1.5F) {
                     correct -= Gdx.graphics.getDeltaTime() * 60.0F;
+                    CatFoodCupRacingMod.saves.setFloat("reducedTime", CatFoodCupRacingMod.saves.getFloat("reducedTime") + Gdx.graphics.getDeltaTime() * 60.0F);
+                    CatFoodCupRacingMod.saves.setFloat("correctTime", correct);
                 } else if (correct > 0.0F) {
-                    CatFoodCupRacingMod.saves.setFloat("lastPlayTime", CatFoodCupRacingMod.saves.getFloat("lastPlayTime") - correct);
+                    CatFoodCupRacingMod.saves.setFloat("reducedTime", CatFoodCupRacingMod.saves.getFloat("reducedTime") + correct);
                     correct = 0.0F;
                     CatFoodCupRacingMod.saves.setFloat("correctTime", 0.0F);
-                    try {
-                        CatFoodCupRacingMod.saves.save();
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
                 }
             }
         }
@@ -171,7 +164,7 @@ public class TopPanelPatch {
             if (!CardCrawlGame.stopClock && CatFoodCupRacingMod.saves.has("lastStartTime")) {
                 double lastStartTime = Long.parseLong(CatFoodCupRacingMod.saves.getString("lastStartTime")) / 1000.0;
                 double currentTime = System.currentTimeMillis() / 1000.0;
-                CardCrawlGame.playtime = CatFoodCupRacingMod.saves.getFloat("lastPlayTime") + (float) (currentTime - lastStartTime);
+                CardCrawlGame.playtime = CatFoodCupRacingMod.saves.getFloat("lastPlayTime") + (float) (currentTime - lastStartTime) - CatFoodCupRacingMod.saves.getFloat("reducedTime");
             }
         }
     }

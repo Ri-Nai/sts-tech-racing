@@ -26,7 +26,7 @@ import static demoMod.cfcracing.CatFoodCupRacingMod.myActions;
 
 public class SaveLoadCheck implements CustomSavable<Integer> {
     public Integer onSave() {
-        CatFoodCupRacingMod.saves.setFloat("lastPlayTime", CardCrawlGame.playtime);
+        CatFoodCupRacingMod.saves.setFloat("lastPlayTime", CardCrawlGame.playtime + CatFoodCupRacingMod.saves.getFloat("reducedTime"));
         CatFoodCupRacingMod.saves.setString("lastStartTime", Long.toString(System.currentTimeMillis()));
         try {
             CatFoodCupRacingMod.saves.save();

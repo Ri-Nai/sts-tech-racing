@@ -19,6 +19,7 @@ public class SaveAndContinuePatch {
             AbstractDungeon.nextRoom = null;
             AbstractDungeonPatch.CardRarityRngFix.tmpRng = null;
             CatFoodCupRacingMod.saves.remove("appliedWheelOption");
+            CatFoodCupRacingMod.saves.setFloat("reducedTime", 0.0F);
             try {
                 CatFoodCupRacingMod.saves.save();
             } catch (IOException e) {
