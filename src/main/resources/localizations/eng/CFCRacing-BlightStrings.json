@@ -2,13 +2,13 @@
   "cfc:SLinBattle": {
     "NAME": "Mark of Defector",
     "DESCRIPTION": [
-      "You cannot #ySave&Load during combat."
+      "Combat save/load uses left this act: %d."
     ]
   },
   "cfc:SLoutBattle": {
     "NAME": "Mark of Defaulter",
     "DESCRIPTION": [
-      "You cannot #ySave&Load out of combat."
+      "Non-combat save/load uses left this act: %d."
     ]
   }
 }

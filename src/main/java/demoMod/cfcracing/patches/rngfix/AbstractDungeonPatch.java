@@ -73,6 +73,7 @@ public class AbstractDungeonPatch {
 
         @SpireInsertPatch(rloc = 94)
         public static void Insert(AbstractDungeon dungeon, SaveFile saveFile) {
+            CatFoodCupRacingMod.handleActChangeIfNeeded();
             if (AbstractDungeon.nextRoom != null) {
                 WheelOptions.PROXY.onEnterRoom(AbstractDungeon.nextRoom.room);
             }

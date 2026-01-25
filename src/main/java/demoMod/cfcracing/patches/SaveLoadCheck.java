@@ -16,6 +16,7 @@ import com.megacrit.cardcrawl.rooms.AbstractRoom;
 import com.megacrit.cardcrawl.rooms.EventRoom;
 import com.megacrit.cardcrawl.screens.options.ExitGameButton;
 import com.megacrit.cardcrawl.screens.options.SettingsScreen;
+import com.megacrit.cardcrawl.saveAndContinue.SaveFile;
 import demoMod.cfcracing.CatFoodCupRacingMod;
 import demoMod.cfcracing.blights.SLinBattle;
 import demoMod.cfcracing.blights.SLoutBattle;
@@ -26,7 +27,7 @@ import static demoMod.cfcracing.CatFoodCupRacingMod.myActions;
 
 public class SaveLoadCheck implements CustomSavable<Integer> {
     public Integer onSave() {
-        CatFoodCupRacingMod.saves.setFloat("lastPlayTime", CardCrawlGame.playtime + CatFoodCupRacingMod.saves.getFloat("reducedTime"));
+        CatFoodCupRacingMod.saves.setFloat("lastPlayTime", CardCrawlGame.playtime);
         CatFoodCupRacingMod.saves.setString("lastStartTime", Long.toString(System.currentTimeMillis()));
         try {
             CatFoodCupRacingMod.saves.save();
@@ -45,17 +46,17 @@ public class SaveLoadCheck implements CustomSavable<Integer> {
                     public void update() {
                         this.isDone = true;
                         if (AbstractDungeon.getCurrMapNode() == null || AbstractDungeon.getCurrRoom() == null) return;
-                        if (AbstractDungeon.getCurrRoom().phase == AbstractRoom.RoomPhase.COMBAT && !(AbstractDungeon.getCurrRoom()).isBattleOver) {
-                            if (!AbstractDungeon.player.hasBlight(SLinBattle.ID)) {
-                                SLinBattle slinBattle = new SLinBattle();
-                                slinBattle.instantObtain(AbstractDungeon.player, AbstractDungeon.player.blights.size(), true);
-                            }
+                        boolean inCombat = AbstractDungeon.getCurrRoom().phase == AbstractRoom.RoomPhase.COMBAT && !(AbstractDungeon.getCurrRoom()).isBattleOver && !(AbstractDungeon.getCurrRoom() instanceof EventRoom);
+                        CatFoodCupRacingMod.ensureSlBlights();
+
+                        CatFoodCupRacingMod.loadSlCountersFromSaves();
+                        if (inCombat) {
+                            CatFoodCupRacingMod.slInCombatRemaining = Math.max(0, CatFoodCupRacingMod.slInCombatRemaining - 1);
                         } else {
-                            if (!AbstractDungeon.player.hasBlight(SLoutBattle.ID)) {
-                                SLoutBattle sloutBattle = new SLoutBattle();
-                                sloutBattle.instantObtain(AbstractDungeon.player, AbstractDungeon.player.blights.size(), true);
-                            }
+                            CatFoodCupRacingMod.slOutCombatRemaining = Math.max(0, CatFoodCupRacingMod.slOutCombatRemaining - 1);
                         }
+                        CatFoodCupRacingMod.persistSlCounters();
+                        CatFoodCupRacingMod.syncSlBlights();
                         CatFoodCupRacingMod.saves.setString("lastStartTime", Long.toString(System.currentTimeMillis()));
                     }
                 });
@@ -91,11 +92,11 @@ public class SaveLoadCheck implements CustomSavable<Integer> {
                 boolean shouldHide = false;
                 if (AbstractDungeon.getCurrRoom().phase == AbstractRoom.RoomPhase.COMBAT && !(AbstractDungeon.getCurrRoom()).isBattleOver && !(AbstractDungeon.getCurrRoom() instanceof EventRoom)) {
                     if (AbstractDungeon.player.hasBlight(SLinBattle.ID)) {
-                        shouldHide = true;
+                        shouldHide = AbstractDungeon.player.getBlight(SLinBattle.ID).counter <= 0;
                     }
                 } else {
                     if (AbstractDungeon.player.hasBlight(SLoutBattle.ID)) {
-                        shouldHide = true;
+                        shouldHide = AbstractDungeon.player.getBlight(SLoutBattle.ID).counter <= 0;
                     }
                 }
                 if (shouldHide) {
@@ -116,11 +117,11 @@ public class SaveLoadCheck implements CustomSavable<Integer> {
                     AbstractDungeon.getCurrMapNode() != null &&
                     AbstractDungeon.getCurrRoom() != null) {
                 if (AbstractDungeon.getCurrRoom().phase == AbstractRoom.RoomPhase.COMBAT && !(AbstractDungeon.getCurrRoom()).isBattleOver && !(AbstractDungeon.getCurrRoom() instanceof EventRoom)) {
-                    if (AbstractDungeon.player.hasBlight(SLinBattle.ID)) {
+                    if (AbstractDungeon.player.hasBlight(SLinBattle.ID) && AbstractDungeon.player.getBlight(SLinBattle.ID).counter <= 0) {
                         AbstractDungeon.player.getBlight(SLinBattle.ID).flash();
                     }
                 } else {
-                    if (AbstractDungeon.player.hasBlight(SLoutBattle.ID)) {
+                    if (AbstractDungeon.player.hasBlight(SLoutBattle.ID) && AbstractDungeon.player.getBlight(SLoutBattle.ID).counter <= 0) {
                         AbstractDungeon.player.getBlight(SLoutBattle.ID).flash();
                     }
                 }
@@ -135,12 +136,15 @@ public class SaveLoadCheck implements CustomSavable<Integer> {
     public static class ResetSLMark {
         public static void Postfix() {
             System.out.println("Reset SL counters...");
-            CatFoodCupRacingMod.saves.setInt("slInCombat", 1);
-            CatFoodCupRacingMod.saves.setInt("slOutCombat", 1);
-            try {
-                CatFoodCupRacingMod.saves.save();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+            CatFoodCupRacingMod.resetSlCountersForAct(AbstractDungeon.actNum);
+        }
+    }
+
+    @SpirePatch(clz = AbstractDungeon.class, method = "loadSave")
+    public static class Act4Check {
+        public static void Postfix(AbstractDungeon dungeon, SaveFile saveFile) {
+            if (AbstractDungeon.actNum == 4) {
+                CardCrawlGame.stopClock = true;
             }
         }
     }

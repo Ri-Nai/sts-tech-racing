@@ -22,12 +22,14 @@ import com.megacrit.cardcrawl.ui.DialogWord;
 import com.megacrit.cardcrawl.vfx.AbstractGameEffect;
 import com.megacrit.cardcrawl.vfx.SpeechTextEffect;
 import demoMod.cfcracing.entity.CardSetting;
+import demoMod.cfcracing.blights.SLinBattle;
+import demoMod.cfcracing.blights.SLoutBattle;
 import demoMod.cfcracing.patches.SaveLoadCheck;
 import demoMod.cfcracing.patches.TopPanelPatch;
 import demoMod.cfcracing.patches.rngfix.MonsterHelperPatch;
 import demoMod.cfcracing.ui.CardFilterModMenu;
 import demoMod.cfcracing.ui.CardFilterModMenuButton;
-import demoMod.cfcracing.ui.IntSlider;
+import demoMod.cfcracing.ui.DropdownSetting;
 import demoMod.cfcracing.wheelOptions.WheelOptions;
 
 import java.io.IOException;
@@ -49,19 +51,21 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
 
     public static boolean defaultA15Option = false;
 
-    public static int maxSLTimes = 1;
+    public static int maxSLCombatTimes = 1;
 
-    public static int ironcladBonus = 360;
+    public static int maxSLEventTimes = 1;
 
-    public static int silentBonus = 420;
+    public static int slInCombatRemaining = 0;
 
-    public static int defectBonus = 450;
+    public static int slOutCombatRemaining = 0;
 
-    public static int watcherBonus = 300;
+    public static int slActLastUpdated = 0;
+
+    public static final int[] SL_LIMIT_OPTIONS = new int[]{1, 2, 3, 5, 999};
 
     static {
         try {
-            saves = new SpireConfig("cfc-racing", "saves");
+            saves = new SpireConfig("tech-racing", "saves");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -95,8 +99,9 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
             saves.setFloat("correctTime", 0);
             saves.setString("lastStartTime", Long.toString(System.currentTimeMillis()));
             saves.setFloat("lastPlayTime", 0.0F);
-            saves.setFloat("reducedTime", 0.0F);
             TopPanelPatch.correct = 0.0F;
+            TopPanelPatch.PatchUpdate.defeatedHeart = false;
+            resetSlCountersForAct(AbstractDungeon.actNum);
 
             saves.setInt("EventRngCountLast", -1);
             saves.setString("EventResultLast", "");
@@ -109,6 +114,7 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
             }
             MonsterHelperPatch.encounterMap.clear();
         }
+        ensureSlBlights();
         purgeCardPool();
     }
 
@@ -241,104 +247,23 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
                     }
                 }
         );
-        ModSlider maxSLTimesSlider = new ModSlider(uiStrings.TEXT[5], 470.0F, 600.0F, 1.0F, "", settingsPanel, modSlider -> {
-            int newValue = Math.round(1.0F + modSlider.value * 4.0F);
-            if (newValue != maxSLTimes) {
-                maxSLTimes = newValue;
-                saves.setInt("maxSLTimes", maxSLTimes);
+        DropdownSetting slPerActDropdown = new DropdownSetting(320.0F, 500.0F, uiStrings.TEXT[5], new String[]{"1", "2", "3", "5", "999"}, settingsPanel, selectedIndex -> {
+            int chosen = SL_LIMIT_OPTIONS[Math.min(Math.max(selectedIndex, 0), SL_LIMIT_OPTIONS.length - 1)];
+            if (chosen != maxSLCombatTimes || chosen != maxSLEventTimes) {
+                maxSLCombatTimes = chosen;
+                maxSLEventTimes = chosen;
+                saves.setInt("maxSLCombatTimes", maxSLCombatTimes);
+                saves.setInt("maxSLEventTimes", maxSLEventTimes);
                 try {
                     saves.save();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                resetSlCountersForAct(slActLastUpdated == 0 ? 1 : slActLastUpdated);
             }
-        }) {
-            @Override
-            public void update() {
-                if (!subMenu.menuHidden) {
-                    return;
-                }
-                super.update();
-                this.value = 1.0F + this.value * 4.0F;
-            }
-        };
-        ModLabel heartBonusTimeLabel = new ModLabel(uiStrings.TEXT[6], 1100.0F, 655.0F, settingsPanel, modLabel -> {});
-        IntSlider ironcladBonusSlider = new IntSlider(uiStrings.TEXT[7], 1220.0F, 605.0F, 0, 900, 10, "s", settingsPanel, value -> {
-            ironcladBonus = value;
-            saves.setInt("ironcladBonus", ironcladBonus);
-            try {
-                saves.save();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }) {
-            @Override
-            public void update() {
-                if (!subMenu.menuHidden) {
-                    return;
-                }
-                super.update();
-            }
-        };
-        IntSlider silentBonusSlider = new IntSlider(uiStrings.TEXT[8], 1220.0F, 505.0F, 0, 900, 10, "s", settingsPanel, value -> {
-            silentBonus = value;
-            saves.setInt("silentBonus", silentBonus);
-            try {
-                saves.save();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }) {
-            @Override
-            public void update() {
-                if (!subMenu.menuHidden) {
-                    return;
-                }
-                super.update();
-            }
-        };
-        IntSlider defectBonusSlider = new IntSlider(uiStrings.TEXT[9], 1220.0F, 405.0F, 0, 900, 10, "s", settingsPanel, value -> {
-            defectBonus = value;
-            saves.setInt("defectBonus", defectBonus);
-            try {
-                saves.save();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }) {
-            @Override
-            public void update() {
-                if (!subMenu.menuHidden) {
-                    return;
-                }
-                super.update();
-            }
-        };
-        IntSlider watcherBonusSlider = new IntSlider(uiStrings.TEXT[10], 1220.0F, 305.0F, 0, 900, 10, "s", settingsPanel, value -> {
-            watcherBonus = value;
-            saves.setInt("watcherBonus", watcherBonus);
-            try {
-                saves.save();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }) {
-            @Override
-            public void update() {
-                if (!subMenu.menuHidden) {
-                    return;
-                }
-                super.update();
-            }
-        };
+        }, () -> !subMenu.menuHidden);
         settingsPanel.addUIElement(cardBanLabel);
         settingsPanel.addUIElement(defaultA15);
-        //settingsPanel.addUIElement(maxSLTimesSlider);
-        settingsPanel.addUIElement(heartBonusTimeLabel);
-        settingsPanel.addUIElement(ironcladBonusSlider);
-        settingsPanel.addUIElement(silentBonusSlider);
-        settingsPanel.addUIElement(defectBonusSlider);
-        settingsPanel.addUIElement(watcherBonusSlider);
         settingsPanel.addUIElement(subMenu);
 
         Texture badgeTexture = ImageMaster.loadImage("cfcImages/ui/badge.png");
@@ -348,30 +273,23 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
         if (saves.has("defaultA15Option")) {
             defaultA15Option = saves.getBool("defaultA15Option");
         }
-        if (saves.has("maxSLTimes")) {
-            maxSLTimes = saves.getInt("maxSLTimes");
+        if (saves.has("maxSLCombatTimes")) {
+            maxSLCombatTimes = saves.getInt("maxSLCombatTimes");
+        } else {
+            saves.setInt("maxSLCombatTimes", maxSLCombatTimes);
         }
-        maxSLTimesSlider.setValue((maxSLTimes - 1.0F) / 4.0F);
-        if (saves.has("ironcladBonus")) {
-            ironcladBonus = saves.getInt("ironcladBonus");
+        if (saves.has("maxSLEventTimes")) {
+            maxSLEventTimes = saves.getInt("maxSLEventTimes");
+        } else {
+            saves.setInt("maxSLEventTimes", maxSLEventTimes);
         }
-        ironcladBonusSlider.setValue(ironcladBonus);
-        if (saves.has("silentBonus")) {
-            silentBonus = saves.getInt("silentBonus");
-        }
-        silentBonusSlider.setValue(silentBonus);
-        if (saves.has("defectBonus")) {
-            defectBonus = saves.getInt("defectBonus");
-        }
-        defectBonusSlider.setValue(defectBonus);
-        if (saves.has("watcherBonus")) {
-            watcherBonus = saves.getInt("watcherBonus");
-        }
-        watcherBonusSlider.setValue(watcherBonus);
+        slPerActDropdown.setSelectedIndex(getSlLimitIndex(maxSLCombatTimes));
+        loadSlCountersFromSaves();
     }
 
     @Override
     public void receiveStartAct() {
+        ensureSlBlights();
         purgeCardPool();
     }
 
@@ -395,6 +313,92 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
         }
         effectList.forEach(AbstractGameEffect::update);
         effectList.removeIf(e -> e.isDone);
+    }
+
+    public static void loadSlCountersFromSaves() {
+        if (saves.has("slInCombatRemaining")) {
+            slInCombatRemaining = saves.getInt("slInCombatRemaining");
+        } else {
+            slInCombatRemaining = maxSLCombatTimes;
+            saves.setInt("slInCombatRemaining", slInCombatRemaining);
+        }
+        if (saves.has("slOutCombatRemaining")) {
+            slOutCombatRemaining = saves.getInt("slOutCombatRemaining");
+        } else {
+            slOutCombatRemaining = maxSLEventTimes;
+            saves.setInt("slOutCombatRemaining", slOutCombatRemaining);
+        }
+        if (saves.has("slActLastUpdated")) {
+            slActLastUpdated = saves.getInt("slActLastUpdated");
+        }
+    }
+
+    public static void persistSlCounters() {
+        saves.setInt("slInCombatRemaining", slInCombatRemaining);
+        saves.setInt("slOutCombatRemaining", slOutCombatRemaining);
+        saves.setInt("slActLastUpdated", slActLastUpdated);
+        try {
+            saves.save();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void resetSlCountersForAct(int actNum) {
+        int act = Math.max(1, actNum);
+        slInCombatRemaining = maxSLCombatTimes;
+        slOutCombatRemaining = maxSLEventTimes;
+        slActLastUpdated = act;
+        persistSlCounters();
+        syncSlBlights();
+    }
+
+    public static void refreshSlCountersForAct() {
+        loadSlCountersFromSaves();
+        syncSlBlights();
+    }
+
+    public static void syncSlBlights() {
+        if (AbstractDungeon.player == null) return;
+        if (AbstractDungeon.player.hasBlight(SLinBattle.ID)) {
+            AbstractDungeon.player.getBlight(SLinBattle.ID).counter = slInCombatRemaining;
+            AbstractDungeon.player.getBlight(SLinBattle.ID).updateDescription();
+        }
+        if (AbstractDungeon.player.hasBlight(SLoutBattle.ID)) {
+            AbstractDungeon.player.getBlight(SLoutBattle.ID).counter = slOutCombatRemaining;
+            AbstractDungeon.player.getBlight(SLoutBattle.ID).updateDescription();
+        }
+    }
+
+    public static int getSlLimitIndex(int value) {
+        for (int i = 0; i < SL_LIMIT_OPTIONS.length; i++) {
+            if (SL_LIMIT_OPTIONS[i] == value) return i;
+        }
+        return 0;
+    }
+
+    public static void handleActChangeIfNeeded() {
+        if (AbstractDungeon.player == null) return;
+        loadSlCountersFromSaves();
+        if (AbstractDungeon.actNum > slActLastUpdated) {
+            resetSlCountersForAct(AbstractDungeon.actNum);
+            ensureSlBlights();
+        } else {
+            syncSlBlights();
+        }
+    }
+
+    public static void ensureSlBlights() {
+        if (AbstractDungeon.player == null) return;
+        if (!AbstractDungeon.player.hasBlight(SLinBattle.ID)) {
+            SLinBattle slIn = new SLinBattle();
+            slIn.instantObtain(AbstractDungeon.player, AbstractDungeon.player.blights.size(), true);
+        }
+        if (!AbstractDungeon.player.hasBlight(SLoutBattle.ID)) {
+            SLoutBattle slOut = new SLoutBattle();
+            slOut.instantObtain(AbstractDungeon.player, AbstractDungeon.player.blights.size(), true);
+        }
+        syncSlBlights();
     }
 
 

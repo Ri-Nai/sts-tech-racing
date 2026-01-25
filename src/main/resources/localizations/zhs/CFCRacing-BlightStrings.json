@@ -2,13 +2,13 @@
   "cfc:SLinBattle": {
     "NAME": "怯战印记",
     "DESCRIPTION": [
-      "你无法在战斗内进行存/读档。"
+      "本幕战斗内可存/读档次数：%d。"
     ]
   },
   "cfc:SLoutBattle": {
     "NAME": "毁约印记",
     "DESCRIPTION": [
-      "你无法在战斗外进行存/读档。"
+      "本幕战斗外可存/读档次数：%d。"
     ]
   }
 }

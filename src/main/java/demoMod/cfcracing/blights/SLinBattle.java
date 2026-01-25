@@ -22,11 +22,11 @@ public class SLinBattle extends AbstractBlight {
         this.img = IMG;
         this.outlineImg = IMG_OUTLINE;
         this.increment = 0;
-        this.counter = -1;
+        this.counter = 0;
     }
 
     public void updateDescription() {
-        this.description = DESCRIPTION[0];
+        this.description = String.format(DESCRIPTION[0], Math.max(0, this.counter));
         this.tips.clear();
         this.tips.add(new PowerTip(this.name, this.description));
         initializeTips();

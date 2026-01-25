@@ -6,12 +6,7 @@
       "#rWarning: Card pool is too shallow! NL ",
       "Lock the ascension level to 15 in the character select screen.",
       "Card ban:",
-      "Max save&load times",
-      "Heart time bonus",
-      "Ironclad",
-      "The Silent",
-      "Defect",
-      "Watcher"
+      "Save&Load uses per act (combat/event)"
     ]
   },
   "cfc:WheelOptions": {

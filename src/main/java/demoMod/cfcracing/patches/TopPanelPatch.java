@@ -8,7 +8,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.evacipated.cardcrawl.modthespire.Loader;
 import com.evacipated.cardcrawl.modthespire.ModInfo;
 import com.evacipated.cardcrawl.modthespire.lib.*;
-import com.megacrit.cardcrawl.characters.AbstractPlayer;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
@@ -32,9 +31,6 @@ import javassist.expr.ExprEditor;
 import javassist.expr.MethodCall;
 
 import java.io.IOException;
-import java.util.ArrayList;
-
-import static java.lang.Math.min;
 
 public class TopPanelPatch {
     public static Float correct = 0.0F;
@@ -55,18 +51,26 @@ public class TopPanelPatch {
         @SpireInsertPatch(rloc = 10, localvars = {"clockColor"})
         static public void Insert2(TopPanel __instance, SpriteBatch sb, @ByRef Color[] clockColor) {
             CardCrawlGame.stopClock = tmp;
-            if (CardCrawlGame.stopClock || correct > 0.0F) {
-                clockColor[0] = Settings.GREEN_TEXT_COLOR;
-            } else {
-                if (CardCrawlGame.playtime < 800) {
-                    clockColor[0] = new Color(1.0F, 0.84F, 0.15F, 1.0F);
-                } else if (CardCrawlGame.playtime < 1200) {
-                    clockColor[0] = new Color(0.72F, 0.72F, 0.72F, 1.0F);
-                } else if (CardCrawlGame.playtime < 1800) {
-                    clockColor[0] = new Color(0.82F, 0.54F, 0.28F, 1.0F);
+            if (CardCrawlGame.stopClock) {
+                if (AbstractDungeon.actNum < 4) {
+                    if (CardCrawlGame.playtime < 200.0F) {
+                        clockColor[0] = new Color(1.0F, 0.2F, 0.2F, 1.0F);
+                    } else if (CardCrawlGame.playtime < 400.0F) {
+                        clockColor[0] = new Color(0.82F, 0.54F, 0.28F, 1.0F);
+                    } else {
+                        clockColor[0] = Settings.GREEN_TEXT_COLOR;
+                    }
                 } else {
-                    clockColor[0] = new Color(1.0F, 1.0F, 1.0F, 1.0F);
+                    clockColor[0] = Settings.GREEN_TEXT_COLOR;
                 }
+            } else if (CardCrawlGame.playtime < 800.0F) {
+                clockColor[0] = new Color(1.0F, 0.84F, 0.15F, 1.0F);
+            } else if (CardCrawlGame.playtime < 1200.0F) {
+                clockColor[0] = new Color(0.72F, 0.72F, 0.72F, 1.0F);
+            } else if (CardCrawlGame.playtime < 1800.0F) {
+                clockColor[0] = new Color(0.82F, 0.54F, 0.28F, 1.0F);
+            } else {
+                clockColor[0] = new Color(1.0F, 1.0F, 1.0F, 1.0F);
             }
         }
 
@@ -87,14 +91,15 @@ public class TopPanelPatch {
         }
 
         public static boolean check() {
-            return correct > 0.0F || CatFoodCupRacingMod.saves.has("totalTime") && CatFoodCupRacingMod.saves.getFloat("totalTime") > 0.0F && AbstractDungeon.floorNum > 0;
+            return CatFoodCupRacingMod.saves.has("totalTime") && CatFoodCupRacingMod.saves.getFloat("totalTime") > 0.0F && AbstractDungeon.floorNum > 0;
         }
 
         public static String cal() {
+            float total = CatFoodCupRacingMod.saves.getFloat("totalTime");
             if (correct > 0.0F) {
-                return "-" + CharStat.formatHMSM(correct) + "(" + CharStat.formatHMSM(CatFoodCupRacingMod.saves.getFloat("totalTime")) + ")";
+                return "-" + CharStat.formatHMSM(correct) + "(" + CharStat.formatHMSM(total) + ")";
             }
-            return "(" + CharStat.formatHMSM(CatFoodCupRacingMod.saves.getFloat("totalTime")) + ")";
+            return "(" + CharStat.formatHMSM(total) + ")";
         }
     }
 
@@ -105,15 +110,34 @@ public class TopPanelPatch {
     static public class PatchOnFinalBossVictoryLogic {
         @SpireInsertPatch(rloc = 12)
         static public void Insert(AbstractMonster monster) {
+            if ((AbstractDungeon.ascensionLevel == 20 && AbstractDungeon.bossList.size() >= 2 && AbstractDungeon.actNum == 3) || Settings.isEndless) {
+                return;
+            }
+            CardCrawlGame.stopClock = true;
             if (AbstractDungeon.actNum < 4) {
                 CatFoodCupRacingMod.saves.setFloat("totalTime", CardCrawlGame.playtime);
+                if (Settings.hasRubyKey && Settings.hasEmeraldKey && Settings.hasSapphireKey) {
+                    CardCrawlGame.playtime = 900.0F;
+                }
                 try {
                     CatFoodCupRacingMod.saves.save();
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
+                if (!Settings.hasEmeraldKey || !Settings.hasSapphireKey || !Settings.hasRubyKey) {
+                    CardCrawlGame.playtime = Math.min(CardCrawlGame.playtime, CatFoodCupRacingMod.saves.getFloat("totalTime"));
+                }
             } else if (CatFoodCupRacingMod.saves.has("totalTime")) {
-                CardCrawlGame.playtime = min(CardCrawlGame.playtime, CatFoodCupRacingMod.saves.getFloat("totalTime"));
+                float totalTime = CatFoodCupRacingMod.saves.getFloat("totalTime");
+                float reduced = totalTime - 300.0F;
+                CardCrawlGame.playtime = reduced;
+                CatFoodCupRacingMod.saves.setFloat("totalTime", reduced);
+                TopPanelPatch.PatchUpdate.defeatedHeart = true;
+                try {
+                    CatFoodCupRacingMod.saves.save();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
     }
@@ -125,15 +149,7 @@ public class TopPanelPatch {
     static public class PatchOpen {
         static public void Prefix(DoorUnlockScreen doorUnlockScreen, boolean eventVersion) {
             if (eventVersion) {
-                if (AbstractDungeon.player.chosenClass == AbstractPlayer.PlayerClass.IRONCLAD) {
-                    correct = (float) CatFoodCupRacingMod.ironcladBonus;
-                } else if (AbstractDungeon.player.chosenClass == AbstractPlayer.PlayerClass.THE_SILENT) {
-                    correct = (float) CatFoodCupRacingMod.silentBonus;
-                } else if (AbstractDungeon.player.chosenClass == AbstractPlayer.PlayerClass.DEFECT) {
-                    correct = (float) CatFoodCupRacingMod.defectBonus;
-                } else {
-                    correct = (float) CatFoodCupRacingMod.watcherBonus;
-                }
+                correct = 0.0F;
             }
         }
     }
@@ -143,19 +159,22 @@ public class TopPanelPatch {
             method = "update"
     )
     static public class PatchUpdate {
+        public static boolean defeatedHeart = false;
+
         static public void Prefix(AbstractDungeon abstractDungeon) {
             if (!CardCrawlGame.stopClock) {
-                if (!CatFoodCupRacingMod.saves.has("reducedTime")) {
-                    CatFoodCupRacingMod.saves.setFloat("reducedTime", 0.0F);
-                }
                 if (correct > 1.5F) {
+                    CardCrawlGame.playtime -= Gdx.graphics.getDeltaTime() * 60.0F;
                     correct -= Gdx.graphics.getDeltaTime() * 60.0F;
-                    CatFoodCupRacingMod.saves.setFloat("reducedTime", CatFoodCupRacingMod.saves.getFloat("reducedTime") + Gdx.graphics.getDeltaTime() * 60.0F);
-                    CatFoodCupRacingMod.saves.setFloat("correctTime", correct);
                 } else if (correct > 0.0F) {
-                    CatFoodCupRacingMod.saves.setFloat("reducedTime", CatFoodCupRacingMod.saves.getFloat("reducedTime") + correct);
+                    CardCrawlGame.playtime -= correct;
                     correct = 0.0F;
                     CatFoodCupRacingMod.saves.setFloat("correctTime", 0.0F);
+                    try {
+                        CatFoodCupRacingMod.saves.save();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
             }
         }
@@ -164,7 +183,16 @@ public class TopPanelPatch {
             if (!CardCrawlGame.stopClock && CatFoodCupRacingMod.saves.has("lastStartTime")) {
                 double lastStartTime = Long.parseLong(CatFoodCupRacingMod.saves.getString("lastStartTime")) / 1000.0;
                 double currentTime = System.currentTimeMillis() / 1000.0;
-                CardCrawlGame.playtime = CatFoodCupRacingMod.saves.getFloat("lastPlayTime") + (float) (currentTime - lastStartTime) - CatFoodCupRacingMod.saves.getFloat("reducedTime");
+                CardCrawlGame.playtime = CatFoodCupRacingMod.saves.getFloat("lastPlayTime") + (float) (currentTime - lastStartTime);
+            }
+            if (CardCrawlGame.stopClock && AbstractDungeon.actNum == 4 && CardCrawlGame.playtime > 0.0F && !defeatedHeart && !AbstractDungeon.player.isDead) {
+                CardCrawlGame.playtime -= Gdx.graphics.getDeltaTime();
+                if (CardCrawlGame.playtime <= 0.0F) {
+                    CardCrawlGame.playtime = 0.0F;
+                    AbstractDungeon.closeCurrentScreen();
+                    AbstractDungeon.player.isDead = true;
+                    AbstractDungeon.deathScreen = new DeathScreen(AbstractDungeon.getMonsters());
+                }
             }
         }
     }

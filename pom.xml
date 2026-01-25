@@ -5,9 +5,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>demoMod</groupId>
-    <artifactId>cfc-racing</artifactId>
+    <artifactId>tech-racing</artifactId>
     <version>1.0</version>
 
+    <properties>
+        <steam.path>D:/SteamLibrary/steamapps</steam.path>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>com.megacrit.cardcrawl</groupId>
@@ -33,7 +36,7 @@
     </dependencies>
 
     <build>
-        <finalName>cfc-racing</finalName>
+        <finalName>tech-racing</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -53,7 +56,7 @@
                         <phase>package</phase>
                         <configuration>
                             <target>
-                                <copy file="target\cfc-racing.jar" tofile="${steam.path}\common\SlayTheSpire\mods\cfc-racing.jar"/>
+                                <copy file="target\tech-racing.jar" tofile="${steam.path}\common\SlayTheSpire\mods\tech-racing.jar"/>
                             </target>
                         </configuration>
                         <goals>
