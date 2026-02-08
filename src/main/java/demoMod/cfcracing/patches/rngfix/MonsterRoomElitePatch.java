@@ -39,6 +39,7 @@ public class MonsterRoomElitePatch {
             }
             System.out.println("Entered elite room. Current seed count: " + CatFoodCupRacingMod.saves.getInt("eliteCount"));
             CardGroupPatch.PatchGetRandomCard2.eliteCardRng = new Random(Settings.seed + CatFoodCupRacingMod.saves.getInt("eliteCount"));
+            AbstractDungeonPatch.CardRarityRngFix.cardRarityEliteRng = new Random(Settings.seed + CatFoodCupRacingMod.saves.getInt("eliteCount"));
         }
     }
 }

@@ -163,6 +163,17 @@ public class AbstractDungeonPatch {
             return SpireReturn.Return(list.get(random.random(list.size() - 1)).makeCopy());
         }
 
+        /**
+         * 用于潘多拉魔盒等需要随机生成卡牌的场景
+         */
+        public static AbstractCard ReturnTrulyRandomCard() {
+            List<AbstractCard> list = new ArrayList<>();
+            list.addAll(AbstractDungeon.srcCommonCardPool.group);
+            list.addAll(AbstractDungeon.srcUncommonCardPool.group);
+            list.addAll(AbstractDungeon.srcRareCardPool.group);
+            return list.get(AbstractDungeon.miscRng.random(list.size() - 1)).makeCopy();
+        }
+
         private static void addCardsToTmpPool(List<AbstractCard> tmpPool, List<AbstractCard> cardsToAdd, AbstractCard cardToTransform) {
             for (int i = 0; i < cardsToAdd.size(); i++) {
                 AbstractCard card = cardsToAdd.get(i);
@@ -304,7 +315,8 @@ public class AbstractDungeonPatch {
 
         @SpireInsertPatch(rloc = 15, localvars = {"rarity"})
         public static void Insert1(@ByRef(type = "cards.AbstractCard$CardRarity") Object[] _rarity) {
-            if (AbstractDungeon.currMapNode != null && AbstractDungeon.getCurrRoom() instanceof ShopRoom) {
+            if (AbstractDungeon.currMapNode != null && (AbstractDungeon.getCurrRoom() instanceof ShopRoom || AbstractDungeon.getCurrRoom() instanceof MonsterRoomElite)) {
+                System.out.println("Changing card rarity...");
                 tmpRarity = (AbstractCard.CardRarity) _rarity[0];
                 _rarity[0] = AbstractCard.CardRarity.UNCOMMON;
             }
@@ -312,9 +324,46 @@ public class AbstractDungeonPatch {
 
         @SpireInsertPatch(rloc = 34, localvars = {"rarity"})
         public static void Insert2(@ByRef(type = "cards.AbstractCard$CardRarity") Object[] _rarity) {
-            if (AbstractDungeon.currMapNode != null && AbstractDungeon.getCurrRoom() instanceof ShopRoom) {
+            if (AbstractDungeon.currMapNode != null && (AbstractDungeon.getCurrRoom() instanceof ShopRoom || AbstractDungeon.getCurrRoom() instanceof MonsterRoomElite)) {
+                System.out.println("Recovering card rarity...");
                 _rarity[0] = tmpRarity;
             }
+        }
+
+        /**
+         * 精英房卡牌升级使用 eliteCardRng 而非 cardRng，防止精英战影响后续随机数
+         */
+        @SpireInsertPatch(rloc = 59, localvars = {"retVal"})
+        public static SpireReturn<java.util.ArrayList<AbstractCard>> Insert3(java.util.ArrayList<AbstractCard> retVal) {
+            if (!(AbstractDungeon.getCurrRoom() instanceof MonsterRoomElite)) {
+                return SpireReturn.Continue();
+            }
+            float cardUpgradedChance;
+            java.util.ArrayList<AbstractCard> r2 = new java.util.ArrayList<>();
+            for (AbstractCard c : retVal) {
+                r2.add(c.makeCopy());
+            }
+            switch (AbstractDungeon.actNum) {
+                case 1:
+                    cardUpgradedChance = 0.0F;
+                    break;
+                case 2:
+                    cardUpgradedChance = 0.125F;
+                    break;
+                default:
+                    cardUpgradedChance = 0.25F;
+                    break;
+            }
+            for (AbstractCard c : r2) {
+                if (c.rarity != AbstractCard.CardRarity.RARE && CardGroupPatch.PatchGetRandomCard2.eliteCardRng.randomBoolean(cardUpgradedChance) && c.canUpgrade()) {
+                    c.upgrade();
+                } else {
+                    for (com.megacrit.cardcrawl.relics.AbstractRelic r : AbstractDungeon.player.relics) {
+                        r.onPreviewObtainCard(c);
+                    }
+                }
+            }
+            return SpireReturn.Return(r2);
         }
     }
 

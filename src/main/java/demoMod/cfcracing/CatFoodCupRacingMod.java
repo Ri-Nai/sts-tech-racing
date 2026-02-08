@@ -1,5 +1,6 @@
 package demoMod.cfcracing;
 
+import MapMarks.MapMarks;
 import basemod.*;
 import basemod.interfaces.*;
 import com.badlogic.gdx.Gdx;
@@ -41,13 +42,16 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
         PostInitializeSubscriber,
         PostDungeonInitializeSubscriber,
         StartActSubscriber,
-        EditStringsSubscriber, PostUpdateSubscriber, PostRenderSubscriber {
+        EditStringsSubscriber, PostUpdateSubscriber, PostRenderSubscriber,
+        RenderSubscriber, AddAudioSubscriber {
     public static SpireConfig saves;
     public static HashMap<String, CardSetting> configSettings = new HashMap<>();
 
     public static ArrayList<AbstractGameAction> myActions = new ArrayList<>();
 
     public static List<AbstractGameEffect> effectList = new ArrayList<>();
+
+    public static MapMarks mm = new MapMarks();
 
     public static boolean defaultA15Option = false;
 
@@ -116,6 +120,7 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
         }
         ensureSlBlights();
         purgeCardPool();
+        mm.receiveStartGame();
     }
 
     @Override
@@ -285,12 +290,14 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
         }
         slPerActDropdown.setSelectedIndex(getSlLimitIndex(maxSLCombatTimes));
         loadSlCountersFromSaves();
+        mm.receivePostInitialize();
     }
 
     @Override
     public void receiveStartAct() {
         ensureSlBlights();
         purgeCardPool();
+        mm.receiveStartAct();
     }
 
     @Override
@@ -313,6 +320,7 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
         }
         effectList.forEach(AbstractGameEffect::update);
         effectList.removeIf(e -> e.isDone);
+        mm.receivePostUpdate();
     }
 
     public static void loadSlCountersFromSaves() {
@@ -466,5 +474,14 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
     @Override
     public void receivePostRender(SpriteBatch sb) {
         effectList.forEach(e -> e.render(sb));
+    }
+
+    @Override
+    public void receiveRender(SpriteBatch sb) {
+        mm.receiveRender(sb);
+    }
+
+    public void receiveAddAudio() {
+        mm.receiveAddAudio();
     }
 }
