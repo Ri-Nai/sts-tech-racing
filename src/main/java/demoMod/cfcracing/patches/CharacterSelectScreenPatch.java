@@ -34,10 +34,6 @@ public class CharacterSelectScreenPatch {
                 screen.isAscensionMode = true;
                 screen.ascensionLevel = 15;
             }
-            if (CatFoodCupRacingMod.saves.has("appliedWheelOption") && CatFoodCupRacingMod.saves.getInt("appliedWheelOption") == WheelOptions.SURVIVE_MODE.ordinal()) {
-                screen.isAscensionMode = true;
-                screen.ascensionLevel = 19;
-            }
             if (resetHb == null) {
                 resetHb = new Hitbox(90.0F * Settings.scale, 90.0F * Settings.scale);
                 resetHb.move(58.0F * Settings.scale, Settings.HEIGHT * 0.8F - 14.0F * Settings.scale);

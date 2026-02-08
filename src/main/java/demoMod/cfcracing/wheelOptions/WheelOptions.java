@@ -3,42 +3,78 @@ package demoMod.cfcracing.wheelOptions;
 import com.megacrit.cardcrawl.actions.common.GainEnergyAction;
 import com.megacrit.cardcrawl.actions.utility.UseCardAction;
 import com.megacrit.cardcrawl.cards.AbstractCard;
-import com.megacrit.cardcrawl.cards.curses.AscendersBane;
-import com.megacrit.cardcrawl.cards.red.IronWave;
-import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
+import com.megacrit.cardcrawl.helpers.CardLibrary;
 import com.megacrit.cardcrawl.relics.FrozenEye;
-import com.megacrit.cardcrawl.relics.PrismaticShard;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
-import com.megacrit.cardcrawl.rooms.TreasureRoom;
-import com.megacrit.cardcrawl.vfx.RestartForChangesEffect;
-import com.megacrit.cardcrawl.vfx.cardManip.ShowCardAndObtainEffect;
 import demoMod.cfcracing.CatFoodCupRacingMod;
-import demoMod.cfcracing.patches.TopPanelPatch;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public enum WheelOptions {
-    BASIC_LOGIC {
+    HALF_SL {
+        // 这个选项不需要在 onStartGame/onLoadSave 中做任何事
+        // 效果通过 isHalfSlActive() 方法动态判断
+    },
+    COPY_DEFEND {
         @Override
         public void onStartGame() {
-            AbstractDungeon.effectList.add(new ShowCardAndObtainEffect(new IronWave(), Settings.WIDTH / 2.0F, Settings.HEIGHT / 2.0F));
-        }
-    },
-    ETERNAL_CURSE {
-        @Override
-        public void onLoadSave() {
+            // 检查是否已经应用过效果（通过检查是否有升级过的初始打击来判断）
+            boolean alreadyApplied = false;
             for (AbstractCard card : AbstractDungeon.player.masterDeck.group) {
-                if (card instanceof AscendersBane) {
-                    card.isEthereal = false;
+                if (card.hasTag(AbstractCard.CardTags.STARTER_STRIKE) && card.upgraded) {
+                    alreadyApplied = true;
+                    break;
+                }
+            }
+            if (alreadyApplied) {
+                return;
+            }
+
+            List<AbstractCard> strikesToUpgrade = new ArrayList<>();
+            AbstractCard strikeToReplace = null;
+
+            for (AbstractCard card : AbstractDungeon.player.masterDeck.group) {
+                if (card.hasTag(AbstractCard.CardTags.STARTER_STRIKE)) {
+                    strikesToUpgrade.add(card);
+                    if (strikeToReplace == null) {
+                        strikeToReplace = card;
+                    }
+                }
+            }
+
+            // 升级所有 strike
+            for (AbstractCard strike : strikesToUpgrade) {
+                if (!strike.upgraded) {
+                    strike.upgrade();
+                }
+            }
+
+            // 替换一张 strike 为对应角色的 defend
+            if (strikeToReplace != null) {
+                AbstractDungeon.player.masterDeck.group.remove(strikeToReplace);
+                String defendId = getDefendIdForColor(strikeToReplace.color);
+                if (defendId != null) {
+                    AbstractCard defend = CardLibrary.getCard(defendId).makeCopy();
+                    AbstractDungeon.player.masterDeck.addToTop(defend);
                 }
             }
         }
-    },
-    VANILLA_GAME {
-        @Override
-        public void onSelectThisOption() {
-            Settings.setLanguage(Settings.GameLanguage.ENG, false);
-            Settings.gamePref.flush();
-            CatFoodCupRacingMod.effectList.add(new RestartForChangesEffect());
+
+        private String getDefendIdForColor(AbstractCard.CardColor color) {
+            switch (color) {
+                case RED:
+                    return "Defend_R";
+                case GREEN:
+                    return "Defend_G";
+                case BLUE:
+                    return "Defend_B";
+                case PURPLE:
+                    return "Defend_W";
+                default:
+                    return null;
+            }
         }
     },
     FORETHOUGHT {
@@ -54,31 +90,6 @@ public enum WheelOptions {
         public void onUseCard(AbstractCard card, UseCardAction action) {
             if (card.cost == -1) {
                 AbstractDungeon.actionManager.addToBottom(new GainEnergyAction(1));
-            }
-        }
-    },
-    SURVIVE_MODE {
-    },
-    DIVERGENT_THINKING {
-        @Override
-        public void onEnterRoom(AbstractRoom room) {
-            if (room instanceof TreasureRoom && AbstractDungeon.actNum == 2 && !AbstractDungeon.player.hasRelic(PrismaticShard.ID)) {
-                new PrismaticShard().instantObtain();
-            }
-            AbstractDungeon.shopRelicPool.remove(PrismaticShard.ID);
-        }
-
-        @Override
-        public void onObtainCard(AbstractCard card) {
-            if (card.color != AbstractDungeon.player.getCardColor() && card.color != AbstractCard.CardColor.COLORLESS) {
-                TopPanelPatch.correct += 16.0F;
-            }
-        }
-
-        @Override
-        public void onRemoveCardFromDeck(AbstractCard card) {
-            if (card.color != AbstractDungeon.player.getCardColor() && card.color != AbstractCard.CardColor.COLORLESS) {
-                CatFoodCupRacingMod.saves.setFloat("lastPlayTime", CatFoodCupRacingMod.saves.getFloat("lastPlayTime") + 16.0F);
             }
         }
     },
@@ -181,5 +192,15 @@ public enum WheelOptions {
 
     public void onRemoveCardFromDeck(AbstractCard card) {
 
+    }
+
+    /**
+     * 判断当前游戏是否选择了 HALF_SL 转盘选项
+     */
+    public static boolean isHalfSlActive() {
+        if (CatFoodCupRacingMod.saves.has("appliedWheelOption")) {
+            return CatFoodCupRacingMod.saves.getInt("appliedWheelOption") == HALF_SL.ordinal();
+        }
+        return false;
     }
 }

@@ -20,6 +20,7 @@ import com.megacrit.cardcrawl.saveAndContinue.SaveFile;
 import demoMod.cfcracing.CatFoodCupRacingMod;
 import demoMod.cfcracing.blights.SLinBattle;
 import demoMod.cfcracing.blights.SLoutBattle;
+import demoMod.cfcracing.wheelOptions.WheelOptions;
 
 import java.io.IOException;
 
@@ -53,7 +54,10 @@ public class SaveLoadCheck implements CustomSavable<Integer> {
                         if (inCombat) {
                             CatFoodCupRacingMod.slInCombatRemaining = Math.max(0, CatFoodCupRacingMod.slInCombatRemaining - 1);
                         } else {
-                            CatFoodCupRacingMod.slOutCombatRemaining = Math.max(0, CatFoodCupRacingMod.slOutCombatRemaining - 1);
+                            // 如果选择了 HALF_SL 转盘选项，事件SL不消耗
+                            if (!WheelOptions.isHalfSlActive()) {
+                                CatFoodCupRacingMod.slOutCombatRemaining = Math.max(0, CatFoodCupRacingMod.slOutCombatRemaining - 1);
+                            }
                         }
                         CatFoodCupRacingMod.persistSlCounters();
                         CatFoodCupRacingMod.syncSlBlights();
@@ -95,8 +99,11 @@ public class SaveLoadCheck implements CustomSavable<Integer> {
                         shouldHide = AbstractDungeon.player.getBlight(SLinBattle.ID).counter <= 0;
                     }
                 } else {
-                    if (AbstractDungeon.player.hasBlight(SLoutBattle.ID)) {
-                        shouldHide = AbstractDungeon.player.getBlight(SLoutBattle.ID).counter <= 0;
+                    // 如果选择了 HALF_SL 转盘选项，事件SL永远不隐藏
+                    if (!WheelOptions.isHalfSlActive()) {
+                        if (AbstractDungeon.player.hasBlight(SLoutBattle.ID)) {
+                            shouldHide = AbstractDungeon.player.getBlight(SLoutBattle.ID).counter <= 0;
+                        }
                     }
                 }
                 if (shouldHide) {
@@ -121,8 +128,11 @@ public class SaveLoadCheck implements CustomSavable<Integer> {
                         AbstractDungeon.player.getBlight(SLinBattle.ID).flash();
                     }
                 } else {
-                    if (AbstractDungeon.player.hasBlight(SLoutBattle.ID) && AbstractDungeon.player.getBlight(SLoutBattle.ID).counter <= 0) {
-                        AbstractDungeon.player.getBlight(SLoutBattle.ID).flash();
+                    // 如果选择了 HALF_SL 转盘选项，事件SL不闪烁警告
+                    if (!WheelOptions.isHalfSlActive()) {
+                        if (AbstractDungeon.player.hasBlight(SLoutBattle.ID) && AbstractDungeon.player.getBlight(SLoutBattle.ID).counter <= 0) {
+                            AbstractDungeon.player.getBlight(SLoutBattle.ID).flash();
+                        }
                     }
                 }
             }

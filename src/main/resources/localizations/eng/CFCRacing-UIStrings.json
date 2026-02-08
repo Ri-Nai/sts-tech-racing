@@ -11,20 +11,14 @@
   },
   "cfc:WheelOptions": {
     "TEXT": [
-      "Basic Logic",
-      "Eternal Curse",
-      "Vanilla Game",
-      "Forethought",
-      "Survive Mode",
-      "Divergent Thinking"
+      "Half SL",
+      "Copy Defend",
+      "Forethought"
     ],
     "EXTRA_TEXT": [
-      "Start a run with an Iron Wave.",
-      "Ascender's Bane will no longer #yEthereal.",
-      "Changes the game language to English(Needs to restart the game).",
-      "Whenever you played a #bX cost card, gain [E]. Start a run with #yFrozen #yEye.",
-      "Lock the ascension level to #b19.",
-      "When you enter the treasure room in act 2, obtain relic #yPrismatic #yShard. NL For every card from other characters added to the deck, the time used in this run will be reduced by #b16 seconds."
+      "In this run, event SL is not limited (event maxSL count #b99 ).",
+      "At the start of the run, replace one #yStrike with #yDefend , and upgrade all #yStrikes .",
+      "Whenever you played a #bX cost card, gain [E]. Start a run with #yFrozen #yEye."
     ]
   },
   "cfc:WheelOptionsTitle": {
