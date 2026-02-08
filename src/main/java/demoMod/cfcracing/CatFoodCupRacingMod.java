@@ -307,6 +307,8 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
         BaseMod.loadCustomStrings(UIStrings.class, uiStrings);
         String blightStrings = Gdx.files.internal("localizations/" + language + "/CFCRacing-BlightStrings.json").readString("UTF-8");
         BaseMod.loadCustomStrings(BlightStrings.class, blightStrings);
+        String runModStrings = Gdx.files.internal("localizations/" + language + "/CFCRacing-RunModStrings.json").readString("UTF-8");
+        BaseMod.loadCustomStrings(com.megacrit.cardcrawl.localization.RunModStrings.class, runModStrings);
     }
 
     @Override
