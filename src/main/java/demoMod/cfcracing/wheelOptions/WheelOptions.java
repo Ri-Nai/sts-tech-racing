@@ -20,6 +20,9 @@ public enum WheelOptions {
     COPY_DEFEND {
         @Override
         public void onStartGame() {
+            if (AbstractDungeon.player == null || AbstractDungeon.player.masterDeck == null) {
+                return;
+            }
             // 检查是否已经应用过效果（通过检查是否有升级过的初始打击来判断）
             boolean alreadyApplied = false;
             for (AbstractCard card : AbstractDungeon.player.masterDeck.group) {
@@ -71,7 +74,7 @@ public enum WheelOptions {
                 case BLUE:
                     return "Defend_B";
                 case PURPLE:
-                    return "Defend_W";
+                    return "Defend_P";
                 default:
                     return null;
             }
@@ -80,6 +83,9 @@ public enum WheelOptions {
     FORETHOUGHT {
         @Override
         public void onStartGame() {
+            if (AbstractDungeon.player == null) {
+                return;
+            }
             if (!AbstractDungeon.player.hasRelic(FrozenEye.ID)) {
                 new FrozenEye().instantObtain();
             }

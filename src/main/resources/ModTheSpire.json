@@ -4,7 +4,7 @@
   "author_list": ["Temple9", "TNoName", "S.Vanilla", "Reina"],
   "description": "修改自猫粮杯 cfc-racing 与肉鸽杯（窝瓜杯） rogue-racing 的定制版，供北理/北航/北邮寄术杯比赛使用\n减少了一些可能导致世界线变动的因素，并修复了一些随机数的bug\n新增ban牌功能\n借鉴了 defect-racing 的随机数修复改进、地图标记（MapMarks）及Boss显示等功能\n目前还在测试中",
   "credits": "",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "sts_version": "03-07-2022",
   "mts_version": "3.24.0",
   "dependencies": ["basemod"]
