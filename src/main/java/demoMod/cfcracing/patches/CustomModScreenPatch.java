@@ -18,9 +18,11 @@ public class CustomModScreenPatch {
             screen.ascensionLevel = 15;
             ArrayList<CustomMod> modList = ReflectionHacks.getPrivate(screen, CustomModeScreen.class, "modList");
             for (CustomMod customMod : modList) {
-                if (customMod.ID.equals("Uncertain Future")) {
+                // 默认勾选：前路已定、终幕、海选模式
+                if (customMod.ID.equals("Uncertain Future") || 
+                    customMod.ID.equals("The Ending") ||
+                    customMod.ID.equals(AuditionsModePatch.AUDITIONS_MODE_ID)) {
                     customMod.selected = true;
-                    break;
                 }
             }
         }
