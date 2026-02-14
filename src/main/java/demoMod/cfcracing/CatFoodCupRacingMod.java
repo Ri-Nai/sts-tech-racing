@@ -252,7 +252,7 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
                     }
                 }
         );
-        DropdownSetting slPerActDropdown = new DropdownSetting(320.0F, 500.0F, uiStrings.TEXT[5], new String[]{"1", "2", "3", "5", "999"}, settingsPanel, selectedIndex -> {
+        DropdownSetting slPerActDropdown = new DropdownSetting(350.0F, 725.0F, uiStrings.TEXT[5], new String[]{"1", "2", "3", "5", "999"}, settingsPanel, selectedIndex -> {
             int chosen = SL_LIMIT_OPTIONS[Math.min(Math.max(selectedIndex, 0), SL_LIMIT_OPTIONS.length - 1)];
             if (chosen != maxSLCombatTimes || chosen != maxSLEventTimes) {
                 maxSLCombatTimes = chosen;
