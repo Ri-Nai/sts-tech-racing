@@ -236,7 +236,7 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
                 return 99;
             }
         };
-        ModLabel cardBanLabel = new ModLabel(uiStrings.TEXT[4], 350.0F, 655.0F, settingsPanel, modLabel -> {});
+        ModLabel cardBanLabel = new ModLabel(uiStrings.TEXT[4], 460.0F, 655.0F, settingsPanel, modLabel -> {});
         ModLabeledToggleButton defaultA15 = new ModLabeledToggleButton(uiStrings.TEXT[3], 350.0F, 725.0F, Color.WHITE, FontHelper.buttonLabelFont, defaultA15Option, settingsPanel, (me) -> {},
                 (me) -> {
                     if (!subMenu.menuHidden) {
