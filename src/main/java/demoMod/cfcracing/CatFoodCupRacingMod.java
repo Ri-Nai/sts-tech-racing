@@ -374,13 +374,9 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
             AbstractDungeon.player.getBlight(SLinBattle.ID).counter = slInCombatRemaining;
             AbstractDungeon.player.getBlight(SLinBattle.ID).updateDescription();
         }
-        if (AbstractDungeon.player.hasBlight(SLoutBattle.ID)) {
-            // 如果选择了 HALF_SL 转盘选项，事件SL不显示数字
-            if (WheelOptions.isHalfSlActive()) {
-                AbstractDungeon.player.getBlight(SLoutBattle.ID).counter = -1;
-            } else {
-                AbstractDungeon.player.getBlight(SLoutBattle.ID).counter = slOutCombatRemaining;
-            }
+        // 如果选择了 HALF_SL 转盘选项，不同步事件SL的Blight（因为它不会被显示）
+        if (!WheelOptions.isHalfSlActive() && AbstractDungeon.player.hasBlight(SLoutBattle.ID)) {
+            AbstractDungeon.player.getBlight(SLoutBattle.ID).counter = slOutCombatRemaining;
             AbstractDungeon.player.getBlight(SLoutBattle.ID).updateDescription();
         }
     }
@@ -409,9 +405,17 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
             SLinBattle slIn = new SLinBattle();
             slIn.instantObtain(AbstractDungeon.player, AbstractDungeon.player.blights.size(), true);
         }
-        if (!AbstractDungeon.player.hasBlight(SLoutBattle.ID)) {
-            SLoutBattle slOut = new SLoutBattle();
-            slOut.instantObtain(AbstractDungeon.player, AbstractDungeon.player.blights.size(), true);
+        // 如果选择了 HALF_SL 转盘选项，不显示事件SL的Blight
+        if (!WheelOptions.isHalfSlActive()) {
+            if (!AbstractDungeon.player.hasBlight(SLoutBattle.ID)) {
+                SLoutBattle slOut = new SLoutBattle();
+                slOut.instantObtain(AbstractDungeon.player, AbstractDungeon.player.blights.size(), true);
+            }
+        } else {
+            // 如果已经有了这个Blight，移除它
+            if (AbstractDungeon.player.hasBlight(SLoutBattle.ID)) {
+                AbstractDungeon.player.blights.removeIf(blight -> blight.blightID.equals(SLoutBattle.ID));
+            }
         }
         syncSlBlights();
     }
