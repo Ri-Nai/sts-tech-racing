@@ -375,7 +375,12 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
             AbstractDungeon.player.getBlight(SLinBattle.ID).updateDescription();
         }
         if (AbstractDungeon.player.hasBlight(SLoutBattle.ID)) {
-            AbstractDungeon.player.getBlight(SLoutBattle.ID).counter = slOutCombatRemaining;
+            // 如果选择了 HALF_SL 转盘选项，事件SL不显示数字
+            if (WheelOptions.isHalfSlActive()) {
+                AbstractDungeon.player.getBlight(SLoutBattle.ID).counter = -1;
+            } else {
+                AbstractDungeon.player.getBlight(SLoutBattle.ID).counter = slOutCombatRemaining;
+            }
             AbstractDungeon.player.getBlight(SLoutBattle.ID).updateDescription();
         }
     }
