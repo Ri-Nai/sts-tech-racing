@@ -238,9 +238,9 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
         };
         final float settingAnchorX = 350.0F;
         final float defaultA15Y = 725.0F;
-        final float settingRowGap = 50.0F;
-        final float slPerActY = defaultA15Y - settingRowGap;
-        final float cardBanLabelY = slPerActY - settingRowGap + 30.0F;
+        final float dropdownRowGap = 72.0F;
+        final float slPerActY = defaultA15Y - dropdownRowGap;
+        final float cardBanLabelY = 655.0F;
         ModLabel cardBanLabel = new ModLabel(uiStrings.TEXT[4], settingAnchorX, cardBanLabelY, settingsPanel, modLabel -> {});
         ModLabeledToggleButton defaultA15 = new ModLabeledToggleButton(uiStrings.TEXT[3], settingAnchorX, defaultA15Y, Color.WHITE, FontHelper.buttonLabelFont, defaultA15Option, settingsPanel, (me) -> {},
                 (me) -> {
