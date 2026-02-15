@@ -238,7 +238,7 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
         };
         final float settingAnchorX = 350.0F;
         final float defaultA15Y = 725.0F;
-        final float dropdownRowGap = 72.0F;
+        final float dropdownRowGap = 100.0F;
         final float slPerActY = defaultA15Y - dropdownRowGap;
         final float cardBanLabelY = 655.0F;
         ModLabel cardBanLabel = new ModLabel(uiStrings.TEXT[4], settingAnchorX, cardBanLabelY, settingsPanel, modLabel -> {});
