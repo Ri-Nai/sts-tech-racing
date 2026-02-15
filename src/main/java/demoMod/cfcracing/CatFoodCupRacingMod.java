@@ -236,8 +236,13 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
                 return 99;
             }
         };
-        ModLabel cardBanLabel = new ModLabel(uiStrings.TEXT[4], 460.0F, 655.0F, settingsPanel, modLabel -> {});
-        ModLabeledToggleButton defaultA15 = new ModLabeledToggleButton(uiStrings.TEXT[3], 350.0F, 725.0F, Color.WHITE, FontHelper.buttonLabelFont, defaultA15Option, settingsPanel, (me) -> {},
+        final float settingAnchorX = 350.0F;
+        final float defaultA15Y = 725.0F;
+        final float settingRowGap = 50.0F;
+        final float slPerActY = defaultA15Y - settingRowGap;
+        final float cardBanLabelY = slPerActY - settingRowGap + 30.0F;
+        ModLabel cardBanLabel = new ModLabel(uiStrings.TEXT[4], settingAnchorX, cardBanLabelY, settingsPanel, modLabel -> {});
+        ModLabeledToggleButton defaultA15 = new ModLabeledToggleButton(uiStrings.TEXT[3], settingAnchorX, defaultA15Y, Color.WHITE, FontHelper.buttonLabelFont, defaultA15Option, settingsPanel, (me) -> {},
                 (me) -> {
                     if (!subMenu.menuHidden) {
                         me.enabled = !me.enabled;
@@ -252,7 +257,7 @@ public class CatFoodCupRacingMod implements StartGameSubscriber,
                     }
                 }
         );
-        DropdownSetting slPerActDropdown = new DropdownSetting(350.0F, 725.0F, uiStrings.TEXT[5], new String[]{"1", "2", "3", "5", "999"}, settingsPanel, selectedIndex -> {
+        DropdownSetting slPerActDropdown = new DropdownSetting(settingAnchorX, slPerActY, uiStrings.TEXT[5], new String[]{"1", "2", "3", "5", "999"}, settingsPanel, selectedIndex -> {
             int chosen = SL_LIMIT_OPTIONS[Math.min(Math.max(selectedIndex, 0), SL_LIMIT_OPTIONS.length - 1)];
             if (chosen != maxSLCombatTimes || chosen != maxSLEventTimes) {
                 maxSLCombatTimes = chosen;
