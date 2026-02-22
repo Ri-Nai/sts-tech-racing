@@ -1,11 +1,12 @@
 package demoMod.cfcracing.wheelOptions;
 
-import com.megacrit.cardcrawl.actions.common.GainEnergyAction;
 import com.megacrit.cardcrawl.actions.utility.UseCardAction;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.helpers.CardLibrary;
+import com.megacrit.cardcrawl.relics.ChemicalX;
 import com.megacrit.cardcrawl.relics.FrozenEye;
+import com.megacrit.cardcrawl.relics.IncenseBurner;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
 import demoMod.cfcracing.CatFoodCupRacingMod;
 
@@ -13,9 +14,36 @@ import java.util.ArrayList;
 import java.util.List;
 
 public enum WheelOptions {
-    HALF_SL {
-        // 这个选项不需要在 onStartGame/onLoadSave 中做任何事
-        // 效果通过 isHalfSlActive() 方法动态判断
+    FUTURE_BATTLE {
+        @Override
+        public void onStartGame() {
+            if (AbstractDungeon.player == null) {
+                return;
+            }
+            if (!AbstractDungeon.player.hasRelic(ChemicalX.ID)) {
+                new ChemicalX().instantObtain();
+            }
+            if (!AbstractDungeon.player.hasRelic(FrozenEye.ID)) {
+                new FrozenEye().instantObtain();
+            }
+            AbstractDungeon.shopRelicPool.remove(ChemicalX.ID);
+            AbstractDungeon.shopRelicPool.remove(FrozenEye.ID);
+        }
+    },
+    INCENSE {
+        @Override
+        public void onStartGame() {
+            if (AbstractDungeon.player == null) {
+                return;
+            }
+            if (!AbstractDungeon.player.hasRelic(IncenseBurner.ID)) {
+                new IncenseBurner().instantObtain();
+            }
+            AbstractDungeon.shopRelicPool.remove(IncenseBurner.ID);
+        }
+    },
+    WU_HONGLAN {
+        // 效果由玩家在 Mod 配置界面自行调整
     },
     COPY_DEFEND {
         @Override
@@ -80,22 +108,24 @@ public enum WheelOptions {
             }
         }
     },
-    FORETHOUGHT {
+    HALF_SL {
+        // 这个选项不需要在 onStartGame/onLoadSave 中做任何事
+        // 效果通过 isHalfSlActive() 方法动态判断
+    },
+    EARLY_WIN {
         @Override
         public void onStartGame() {
-            if (AbstractDungeon.player == null) {
+            if (AbstractDungeon.player == null || AbstractDungeon.player.masterDeck == null) {
                 return;
             }
-            if (!AbstractDungeon.player.hasRelic(FrozenEye.ID)) {
-                new FrozenEye().instantObtain();
+            for (AbstractCard card : AbstractDungeon.player.masterDeck.group) {
+                if ("Sweeping Beam".equals(card.cardID)) {
+                    return;
+                }
             }
-            AbstractDungeon.shopRelicPool.remove(FrozenEye.ID);
-        }
-
-        @Override
-        public void onUseCard(AbstractCard card, UseCardAction action) {
-            if (card.cost == -1) {
-                AbstractDungeon.actionManager.addToBottom(new GainEnergyAction(1));
+            AbstractCard sweepingBeam = CardLibrary.getCard("Sweeping Beam");
+            if (sweepingBeam != null) {
+                AbstractDungeon.player.masterDeck.addToTop(sweepingBeam.makeCopy());
             }
         }
     },

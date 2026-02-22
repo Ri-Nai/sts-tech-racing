@@ -11,14 +11,20 @@
   },
   "cfc:WheelOptions": {
     "TEXT": [
-      "Half SL",
+      "Fight the Future",
+      "Incense Time",
+      "Wu Honglan",
       "Copy Defend",
-      "Forethought"
+      "Half SL",
+      "Win Early"
     ],
     "EXTRA_TEXT": [
-      "In this run, event SL is not limited.",
+      "Start the run with #yChemical #yX and #yFrozen #yEye.",
+      "Start the run with #yIncense #yBurner.",
+      "Each racer can ban two cards.",
       "At the start of the run, replace one #yStrike with #yDefend , and upgrade all #yStrikes .",
-      "Whenever you played a #bX cost card, gain [E]. Start a run with #yFrozen #yEye."
+      "In this run, event SL is not limited.",
+      "Add a #ySweeping #yBeam to your deck."
     ]
   },
   "cfc:WheelOptionsTitle": {
