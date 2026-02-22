@@ -39,6 +39,7 @@ public enum WheelOptions {
             if (!AbstractDungeon.player.hasRelic(IncenseBurner.ID)) {
                 new IncenseBurner().instantObtain();
             }
+            AbstractDungeon.rareRelicPool.remove(IncenseBurner.ID);
             AbstractDungeon.shopRelicPool.remove(IncenseBurner.ID);
         }
     },
