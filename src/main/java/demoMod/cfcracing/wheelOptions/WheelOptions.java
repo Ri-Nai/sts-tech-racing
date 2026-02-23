@@ -26,8 +26,14 @@ public enum WheelOptions {
             if (!AbstractDungeon.player.hasRelic(FrozenEye.ID)) {
                 new FrozenEye().instantObtain();
             }
-            AbstractDungeon.shopRelicPool.remove(ChemicalX.ID);
-            AbstractDungeon.shopRelicPool.remove(FrozenEye.ID);
+            removeRelicFromPools(ChemicalX.ID);
+            removeRelicFromPools(FrozenEye.ID);
+        }
+
+        @Override
+        public void onInitializeRelicList() {
+            removeRelicFromPools(ChemicalX.ID);
+            removeRelicFromPools(FrozenEye.ID);
         }
     },
     INCENSE {
@@ -39,8 +45,12 @@ public enum WheelOptions {
             if (!AbstractDungeon.player.hasRelic(IncenseBurner.ID)) {
                 new IncenseBurner().instantObtain();
             }
-            AbstractDungeon.rareRelicPool.remove(IncenseBurner.ID);
-            AbstractDungeon.shopRelicPool.remove(IncenseBurner.ID);
+            removeRelicFromPools(IncenseBurner.ID);
+        }
+
+        @Override
+        public void onInitializeRelicList() {
+            removeRelicFromPools(IncenseBurner.ID);
         }
     },
     WU_HONGLAN {
@@ -200,6 +210,15 @@ public enum WheelOptions {
             }
             WheelOptions.values()[index].onRemoveCardFromDeck(card);
         }
+
+        @Override
+        public void onInitializeRelicList() {
+            int index = check();
+            if (index < 0 || index == this.ordinal()) {
+                return;
+            }
+            WheelOptions.values()[index].onInitializeRelicList();
+        }
     }
     ;
 
@@ -231,6 +250,10 @@ public enum WheelOptions {
 
     }
 
+    public void onInitializeRelicList() {
+
+    }
+
     /**
      * 判断当前游戏是否选择了 HALF_SL 转盘选项
      */
@@ -239,5 +262,13 @@ public enum WheelOptions {
             return CatFoodCupRacingMod.saves.getInt("appliedWheelOption") == HALF_SL.ordinal();
         }
         return false;
+    }
+
+    private static void removeRelicFromPools(String relicId) {
+        AbstractDungeon.commonRelicPool.removeIf(relicId::equals);
+        AbstractDungeon.uncommonRelicPool.removeIf(relicId::equals);
+        AbstractDungeon.rareRelicPool.removeIf(relicId::equals);
+        AbstractDungeon.shopRelicPool.removeIf(relicId::equals);
+        AbstractDungeon.bossRelicPool.removeIf(relicId::equals);
     }
 }
