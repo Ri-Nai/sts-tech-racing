@@ -6,7 +6,7 @@
 
     <groupId>demoMod</groupId>
     <artifactId>tech-racing</artifactId>
-    <version>1.2.0</version>
+    <version>1.2.1</version>
 
     <properties>
         <steam.path>D:/SteamLibrary/steamapps</steam.path>
